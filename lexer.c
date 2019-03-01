@@ -69,7 +69,7 @@ char* tokenTypeMap[] = {        // To print token type returned
 #define LEXEME_SIZE 40
 
 char *previous_buffer;     
-  
+
 char *current_buffer;
 
 int line_no = 1;
@@ -147,6 +147,8 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
 
     int state = 0;
     int final_state = 0;
+
+    Val* val;
 
     char *lexeme = (char*)malloc(LEXEME_SIZE*sizeof(char));
     memset(lexeme, 0, sizeof(lexeme));
@@ -760,7 +762,9 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 break;
 
             case 34:
-                addToken(lu, TK_NUM,lexeme, NULL);
+                val = (Val*)malloc(sizeof(Val));
+                val->integer = atoi(lexeme);
+                addToken(lu, TK_NUM,lexeme, val);
                 final_state = 1;
                 --current_position;             //  Retraction state
                 break;
@@ -810,7 +814,9 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 break;
 
             case 37:
-                addToken(lu, TK_RNUM,lexeme, NULL);
+                val = (Val*)malloc(sizeof(Val));
+                val->real = atof(lexeme);
+                addToken(lu, TK_RNUM,lexeme, val);
                 final_state = 1;
                 break;
             

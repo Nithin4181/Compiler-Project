@@ -54,7 +54,8 @@ typedef enum{
     TK_EQ,
     TK_GT,
     TK_GE,
-    TK_NE
+    TK_NE,
+    TK_ERROR
 }Token_type;
 
 typedef union{

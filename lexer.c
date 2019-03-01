@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -62,13 +61,15 @@ char* tokenTypeMap[] = {        // To print token type returned
     "TK_EQ",
     "TK_GT",
     "TK_GE",
-    "TK_NE"
+    "TK_NE",
+    "TK_ERROR"
 };
 
 #define SIZE_BUFFER 1024        // Size of input buffer used to read source code
 #define LEXEME_SIZE 40
 
-char *previous_buffer;       
+char *previous_buffer;     
+  
 char *current_buffer;
 
 int line_no = 1;
@@ -105,7 +106,6 @@ void addToken(Lexical_Unit* lu, Token_type type, char* lexeme, Val* value){ // C
 	lu->lexeme = lexeme;
 	lu->val = value;
 }
-
 
 FILE *lexer_initialisation(char *input_code){        // Initialize the lexer
     current_buffer=(char*)malloc(sizeof(char)*(SIZE_BUFFER+1));
@@ -147,11 +147,15 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
 
     int state = 0;
     int final_state = 0;
+
     char *lexeme = (char*)malloc(LEXEME_SIZE*sizeof(char));
+    memset(lexeme, 0, sizeof(lexeme));
+
     int lexeme_position = 0;
 
     while (1){
         switch (state){
+
             case 0:
                 if (current_buffer[current_position]=="\0"){
                     current_position = 0;
@@ -165,7 +169,6 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     state = 0;
                     current_position++;
                 }
-//doubt Naveen check
                 else if (current_buffer[current_position]=='\n'){   // increment line number if newline
                     line_no += 1;
                     current_position += 1;
@@ -192,114 +195,103 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     
                 }
                 else if (current_buffer[current_position]>='0' && current_buffer[current_position<='9']){
-                    state=5;
+                    state = 5;
                     lexeme[lexeme_position]=current_buffer[current_position];
                     lexeme_position++;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='_')
-                {
-                    state=6;
+                else if (current_buffer[current_position]=='_'){
+                    state = 6;
                     lexeme[lexeme_position]=current_buffer[current_position];
                     lexeme_position++;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='#')
-                {
-                    state=7;
+                else if (current_buffer[current_position]=='#'){
+                    state = 7;
                     lexeme[lexeme_position]=current_buffer[current_position];
                     lexeme_position++;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='[')
-                {
-                    state=8;
+                else if (current_buffer[current_position]=='['){
+                    state = 8;
                     current_position++;
                 }
-                else if (current_buffer[current_position]==']')
-                {
-                    state=9;
+                else if (current_buffer[current_position]==']'){
+                    state = 9;
                     current_position++;
                 }
-                else if (current_buffer[current_position]==',')
-                {
-                    state=10;
+                else if (current_buffer[current_position]==','){
+                    state = 10;
                     current_position++;
                 }
-                else if (current_buffer[current_position]==';')
-                {
-                    state=11;
+                else if (current_buffer[current_position]==';'){
+                    state = 11;
                     current_position++;
                 }
-                else if (current_buffer[current_position]==':')
-                {
-                    state=12;
+                else if (current_buffer[current_position]==':'){
+                    state = 12;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='.')
-                {
-                    state=13;
+                else if (current_buffer[current_position]=='.'){
+                    state = 13;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='(')
-                {
-                    state=14;
+                else if (current_buffer[current_position]=='('){
+                    state = 14;
                     current_position++;
                 }
-                else if (current_buffer[current_position]==')')
-                {
-                    state=15;
+                else if (current_buffer[current_position]==')'){
+                    state = 15;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='+')
-                {
-                    state=16;
+                else if (current_buffer[current_position]=='+'){
+                    state = 16;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='-')
-                {
-                    state=17;
+                else if (current_buffer[current_position]=='-'){
+                    state = 17;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='*')
-                {
-                    state=18;
+                else if (current_buffer[current_position]=='*'){
+                    state = 18;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='/')
-                {
-                    state=19;
+                else if (current_buffer[current_position]=='/'){
+                    state = 19;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='&')
-                {
-                    state=20;
+                else if (current_buffer[current_position]=='&'){
+                    state = 20;
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='@')
-                {
-                    state=21;
+                else if (current_buffer[current_position]=='@'){
+                    state = 21;
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='~')
-                {
-                    state=22;
+                else if (current_buffer[current_position]=='~'){
+                    state = 22;
                     current_position++;
                 }
-                
-                else if (current_buffer[current_position]=='=')
-                {
-                    state=23;
+                else if (current_buffer[current_position]=='='){
+                    state = 23;
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='>')
-                {
-                    state=24;
+                else if (current_buffer[current_position]=='>'){
+                    state = 24;
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='!')
-                {
-                    state=25;
+                else if (current_buffer[current_position]=='!'){
+                    state = 25;
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
                     current_position++;
                 }                     
             break;
@@ -347,7 +339,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 }
                 break;
 
-            case 3:          // TODO:transition to final state and keyword lookup
+            case 3:
                if ((current_buffer[current_position]>='a' && current_buffer[current_position]<='z')){
                     state = 3;
                     lexeme[lexeme_position] = current_buffer[current_position];
@@ -359,13 +351,13 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     *fp=getStream(*fp);
                     if (*fp==NULL){
                         end_file = 1;
-                        state = ;       // final state of TK_FIELDID
+                        state = 51;
                         current_position++;
                     }
                 }
-//havent made the lookuptable
-                else{   // lookup and return state
-
+                else{
+                    state = 51;
+                    current_position++;
                 }
                 break;
 
@@ -387,25 +379,86 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     *fp=getStream(*fp);
                     if (*fp==NULL){
                         end_file = 1;
-                        state = ;       // final state of TK_FIELDID
+                        state = 51;
                         current_position++;
                     }
                 }
                 else{
-                    fprintf(stderr, " Lexical Error: Wrong Identifier name %s at line %d\n", lexeme ,line_no);  
+                    fprintf(stderr, " Lexical Error: Wrong Identifier name %s at line %d\n", lexeme ,line_no);
+                    state = 52;
                 }
                 break;
            
             case 5:
-            
+                if ((current_buffer[current_position]>='0' && current_buffer[current_position]<='9')){
+                    state = 5;
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if (current_buffer[current_position]=='.'){
+                    state = 35;         // Possible Real number
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if (current_buffer[current_position]=='\0'){
+                    current_position=0;
+                    *fp=getStream(*fp);
+                    if (*fp==NULL){
+                        end_file = 1;
+                        state = 34;
+                        current_position++;
+                    }
+                }
+                else{
+                    state = 34;
+                    current_position++;
+                }
                 break;
             
             case 6:
-            
+                if ((current_buffer[current_position]>='a' && current_buffer[current_position]<='z') || (current_buffer[current_position]>='A' && current_buffer[current_position]<='Z')){
+                    state = 38;
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if (current_buffer[current_position]=='\0'){
+                    current_position = 0;
+                    *fp=getStream(*fp);
+                    if (*fp==NULL){
+                        end_file = 1;
+                        fprintf(stderr, " Lexical Error, Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        state = 52;
+                    }
+                }
+                else{
+                    fprintf(stderr, " Lexical Error: Wrong Identifier name %s at line %d\n", lexeme ,line_no);
+                    state = 52;
+                }
                 break;
             
             case 7:
-                
+                if (current_buffer[current_position]>='a' && current_buffer[current_position]<='z'){
+                    state = 41;
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if (current_buffer[current_position]=='\0'){
+                    current_position = 0;
+                    *fp=getStream(*fp);
+                    if (*fp==NULL){
+                        end_file = 1;
+                        fprintf(stderr, " Lexical Error, Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        state = 52;
+                    }
+                }
+                else{
+                    fprintf(stderr, " Lexical Error: Wrong Identifier name %s at line %d\n", lexeme ,line_no);
+                    state = 52;
+                }
                 break;
             
             case 8:
@@ -481,11 +534,47 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 break;
 
             case 20:
-            
+                if (current_buffer[current_position]=='&'){
+                    state = 43;
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if (current_buffer[current_position]=='\0'){
+                    current_position = 0;
+                    *fp=getStream(*fp);
+                    if (*fp==NULL){
+                        end_file = 1;
+                        fprintf(stderr, " Lexical Error, Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        state = 52;
+                    }
+                }
+                else{
+                    fprintf(stderr, " Lexical Error: Wrong Identifier name %s at line %d\n", lexeme ,line_no);
+                    state = 52;
+                }
                 break;
 
             case 21:
-           
+                if (current_buffer[current_position]=='@'){
+                    state = 45;
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if (current_buffer[current_position]=='\0'){
+                    current_position = 0;
+                    *fp=getStream(*fp);
+                    if (*fp==NULL){
+                        end_file = 1;
+                        fprintf(stderr, " Lexical Error, Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        state = 52;
+                    }
+                }
+                else{
+                    fprintf(stderr, " Lexical Error: Wrong Identifier name %s at line %d\n", lexeme ,line_no);
+                    state = 52;
+                }
                 break;
 
             case 22:
@@ -495,21 +584,76 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 break;
 
             case 23:
-           
+                if (current_buffer[current_position]=='='){
+                    state = 47;
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if (current_buffer[current_position]=='\0'){
+                    current_position = 0;
+                    *fp=getStream(*fp);
+                    if (*fp==NULL){
+                        end_file = 1;
+                        fprintf(stderr, " Lexical Error, Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        state = 52;
+                    }
+                }
+                else{
+                    fprintf(stderr, " Lexical Error: Wrong Identifier name %s at line %d\n", lexeme ,line_no);
+                    state = 52;
+                }
                 break;
 
             case 24:
-           
+                if (current_buffer[current_position]=='='){
+                    state = 49;
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if (current_buffer[current_position]=='\0'){
+                    current_position = 0;
+                    *fp=getStream(*fp);
+                    if (*fp==NULL){
+                        end_file = 1;
+                        state = 48;
+                        current_position++;
+                    }
+                }
+                else{
+                    state = 48;
+                    current_position++;
+                }
                 break;
 
             case 25:
-           
+                if (current_buffer[current_position]=='='){
+                    state = 50;
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if (current_buffer[current_position]=='\0'){
+                    current_position=0;
+                    *fp=getStream(*fp);
+                    if (*fp==NULL){
+                        fprintf(stderr, " Lexical Error, Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        end_file=1;
+                        state = 52;
+                    }
+               }
+                else{
+                    fprintf(stderr, " Lexical Error, Unknown pattern %s at line %d\n", lexeme ,line_no);
+                    state = 52;
+                }
                 break;
 
             case 33:
                 strcpy(lexeme,"<");
                 addToken(lu, TK_LT,lexeme, NULL);
                 final_state=1;
+                --current_position;             // Retraction state
                 break;
 
             case 26:
@@ -530,12 +674,13 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                         strcpy(lexeme,"<-");
                         fprintf(stderr, " Lexical Error, Unknown pattern %s at line %d\n", lexeme ,line_no);
                         end_file=1;
-                        return NULL;
+                        state = 52;
                     }
                }
                 else{
                     strcpy(lexeme,"<-");
                     fprintf(stderr, " Lexical Error, Unknown pattern %s at line %d\n", lexeme ,line_no);
+                    state = 52;
                 }
                 break;
 
@@ -548,6 +693,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 {
                     strcpy(lexeme,"<--");
                     fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                    state = 52;
                 }
                 break;
 
@@ -575,50 +721,280 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     *fp=getStream(*fp);
                     if (*fp==NULL){
                         end_file=1;
-                        state=32;
+                        state = 32;
                         current_position++;        
                     }
                 }
                 else{
-                    state=32;
+                    state = 32;
                     current_position++;
                 }
                 break;
 
-           case 31:
+            case 31:
                 if(current_buffer[current_position]>='2' && current_buffer[current_position]<='7'){
                     state = 31;
                     lexeme[lexeme_position] = current_buffer[current_position];
                     lexeme_position++;
                     current_position++;
-               }
-               else if (current_buffer[current_position]=='\0'){
+                }
+                else if (current_buffer[current_position]=='\0'){
                     current_position=0;
                     *fp=getStream(*fp);
                     if (*fp==NULL){
                         end_file=1;
-                        state=32;
+                        state = 32;
                         current_position++;
                     }
-               }
-               else{
-                   state=32;
-                   current_position++;
-               }
+                }
+                else{
+                    state = 32;
+                    current_position++;
+                }
                 break;
 
+            case 32:
+                addToken(lu, TK_ID,lexeme, NULL);
+                final_state = 1;
+                --current_position;             //  Retraction state
+                break;
 
-           
+            case 34:
+                addToken(lu, TK_NUM,lexeme, NULL);
+                final_state = 1;
+                --current_position;             //  Retraction state
+                break;
+            
+            case 35:
+                if(current_buffer[current_position]>='0' && current_buffer[current_position]<='9'){
+                    state = 36;
+                    lexeme[lexeme_position] = current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if (current_buffer[current_position]=='\0'){
+                    current_position=0;
+                    *fp=getStream(*fp);
+                    if (*fp==NULL){
+                        end_file = 1;
+                        fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        state = 52;
+                    }
+                }
+                else{
+                    fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        state = 52;
+                }
+                break;
 
+            case 36:
+                if(current_buffer[current_position]>='0' && current_buffer[current_position]<='9'){
+                    state = 37;
+                    lexeme[lexeme_position] = current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if (current_buffer[current_position]=='\0'){
+                    current_position=0;
+                    *fp=getStream(*fp);
+                    if (*fp==NULL){
+                        end_file = 1;
+                        fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        state = 52;
+                    }
+                }
+                else{
+                    fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        state = 52;
+                }
+                break;
+
+            case 37:
+                addToken(lu, TK_RNUM,lexeme, NULL);
+                final_state = 1;
+                break;
+            
+            case 38:
+                if((current_buffer[current_position]>='a' && current_buffer[current_position]<='z') || (current_buffer[current_position]>='A' && current_buffer[current_position]<='Z')){
+                    state = 38;
+                    lexeme[lexeme_position] = current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if(current_buffer[current_position]>='0' && current_buffer[current_position]<='9'){
+                    state = 39;
+                    lexeme[lexeme_position] = current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if (current_buffer[current_position]=='\0'){
+                    current_position=0;
+                    *fp=getStream(*fp);
+                    if (*fp==NULL){
+                        end_file = 1;
+                        state = 40;
+                        current_position++;
+                    }
+                }
+                else{
+                    state = 40;
+                    current_position++;
+                }
+                break;
+
+            case 39:
+                if(current_buffer[current_position]>='0' && current_buffer[current_position]<='9'){
+                    state = 39;
+                    lexeme[lexeme_position] = current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if (current_buffer[current_position]=='\0'){
+                    current_position=0;
+                    *fp=getStream(*fp);
+                    if (*fp==NULL){
+                        end_file = 1;
+                        state = 40;
+                        current_position++;
+                    }
+                }
+                else{
+                    state = 40;
+                    current_position++;
+                }
+                break;
+            
+            case 40:
+                // lookup: if keyword, return keyword token
+                // else{
+                //     addToken(lu, TK_FUNID,lexeme, NULL);
+                //     final_state = 1;
+                // }   
+                --current_position;     // Retraction state
+                break;
+            
+            case 41:
+                if (current_buffer[current_position]>='a' && current_buffer[current_position]<='z'){
+                    state = 41;
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if (current_buffer[current_position]=='\0'){
+                    current_position = 0;
+                    *fp=getStream(*fp);
+                    if (*fp==NULL){
+                        end_file = 1;
+                        state = 42;
+                        current_position++;
+                    }
+                }
+                else{
+                    state = 42;
+                    current_position++;
+                }
+                break;
+            
+            case 42:
+                addToken(lu, TK_RECORDID,lexeme, NULL);
+                final_state = 1;
+                --current_position;     // Retraction state
+                break;
+            
+            case 43:
+                if (current_buffer[current_position]=='&'){
+                    state = 44;
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if (current_buffer[current_position]=='\0'){
+                    current_position = 0;
+                    *fp=getStream(*fp);
+                    if (*fp==NULL){
+                        end_file = 1;
+                        fprintf(stderr, " Lexical Error, Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        state = 52;
+                    }
+                }
+                else{
+                    fprintf(stderr, " Lexical Error: Wrong Identifier name %s at line %d\n", lexeme ,line_no);
+                    state = 52;
+                }
+                break;
+
+            case 44:
+                addToken(lu, TK_AND,lexeme, NULL);
+                final_state = 1;
+                break;
+            
+            case 45:
+                if (current_buffer[current_position]=='@'){
+                    state = 46;
+                    lexeme[lexeme_position]=current_buffer[current_position];
+                    lexeme_position++;
+                    current_position++;
+                }
+                else if (current_buffer[current_position]=='\0'){
+                    current_position = 0;
+                    *fp=getStream(*fp);
+                    if (*fp==NULL){
+                        end_file = 1;
+                        fprintf(stderr, " Lexical Error, Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        state = 52;
+                    }
+                }
+                else{
+                    fprintf(stderr, " Lexical Error: Wrong Identifier name %s at line %d\n", lexeme ,line_no);
+                    state = 52;
+                }
+                break;
+            
+            case 46:
+                addToken(lu, TK_OR,lexeme, NULL);
+                final_state = 1;
+                break;
+            
+            case 47:
+                addToken(lu, TK_EQ,lexeme, NULL);
+                final_state = 1;
+                break;
+
+            case 48:
+                addToken(lu, TK_GT,lexeme, NULL);
+                final_state = 1;
+                --current_position;     // Retraction state
+                break;
+
+            case 49:
+                addToken(lu, TK_GE,lexeme, NULL);
+                final_state = 1;
+                break;
+            
+            case 50:
+                addToken(lu, TK_NE,lexeme, NULL);
+                final_state = 1;
+                break;
+            
+            case 51:
+                // lookup: if keyword, return keyword token
+                // else{
+                //     addToken(lu, TK_FIELDID,lexeme, NULL);
+                //     final_state = 1;
+                // }
+                --current_position;
+                break;
+            
+            case 52:
+                addToken(lu, TK_ERROR, lexeme, NULL);
+                final_state = 1;
+                break;
 
         }
+
         if(final_state == 1)
             break;
     } 
+
     return lu;
 }
-
-/*  RETRACTION STATES
-32
-
-*/

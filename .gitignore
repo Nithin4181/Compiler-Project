@@ -1,3 +1,9 @@
+# Test cases
+/testcases
+
+# Output files
+*.txt
+
 # Prerequisites
 *.d
 

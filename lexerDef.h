@@ -1,3 +1,6 @@
+#ifndef _LEXER_DEF_H
+#define _LEXER_DEF_H
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -69,3 +72,5 @@ typedef struct lexical_unit{
     char* lexeme;
     Val *val;
 }Lexical_Unit;
+
+#endif

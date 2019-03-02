@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include <math.h>
 
-#include "lookUp.h"
+#include "lookup.h"
 #include "lexer.h"
 #include "lexerDef.h"
 
@@ -67,6 +67,7 @@ char* tokenTypeMap[] = {        // To print token type returned
 
 #define SIZE_BUFFER 1024        // Size of input buffer used to read source code
 #define LEXEME_SIZE 40
+#define SLOT_COUNT 11
 
 char *previous_buffer;     
 
@@ -77,6 +78,8 @@ int line_no = 1;
 int current_position = 0;
 
 int end_file = 0;
+
+Lookup* lookupTable;
 
 FILE *getStream(FILE *fp){      // Get input chunk from file
     char *temp = previous_buffer;
@@ -117,7 +120,7 @@ FILE *lexer_initialisation(char *input_code){        // Initialize the lexer
     line_no=1;
     current_position=0;
 
-    //lookUpTable = newTable(NO_SLOTS);
+    lookupTable = createTable(SLOT_COUNT);
 
     FILE *fp=fopen(input_code,"r");
 
@@ -136,7 +139,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
     
     Lexical_Unit *lu=(Lexical_Unit*)malloc(sizeof(Lexical_Unit));
 
-    if (current_buffer[current_position]=="\0"){
+    if (current_buffer[current_position]=='\0'){
         current_position = 0;
         *fp = getStream(*fp);
         if(*fp == NULL){
@@ -155,11 +158,13 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
 
     int lexeme_position = 0;
 
+    Node* node = NULL;
+
     while (1){
         switch (state){
 
             case 0:
-                if (current_buffer[current_position]=="\0"){
+                if (current_buffer[current_position]=='\0'){
                     current_position = 0;
                     *fp = getStream(*fp);
                     if (*fp == NULL){
@@ -324,11 +329,11 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 break;
 
             case 2:
-                strcpy(lexeme,'%');
+                strcpy(lexeme,"%");
                 addToken(lu, TK_COMMENT,lexeme, NULL);
                 final_state = 1;
                 while(current_buffer[current_position]!='\n'){    // Ignore line
-                    if (current_buffer[current_position]=="\0"){
+                    if (current_buffer[current_position]=='\0'){
                         current_position=0;
                         *fp=getStream(*fp);
                         if (*fp==NULL){
@@ -871,11 +876,15 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 break;
             
             case 40:
-                // lookup: if keyword, return keyword token
-                // else{
-                //     addToken(lu, TK_FUNID,lexeme, NULL);
-                //     final_state = 1;
-                // }   
+                node = getTokenType(lexeme,lookupTable);
+                if(node != NULL){
+                    addToken(lu, node->token, node->lexeme, NULL);
+                    final_state = 1;
+                }
+                else{
+                    addToken(lu, TK_FUNID,lexeme, NULL);
+                    final_state = 1;
+                }   
                 --current_position;     // Retraction state
                 break;
             
@@ -983,11 +992,15 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 break;
             
             case 51:
-                // lookup: if keyword, return keyword token
-                // else{
-                //     addToken(lu, TK_FIELDID,lexeme, NULL);
-                //     final_state = 1;
-                // }
+                node = getTokenType(lexeme,lookupTable);
+                if(node != NULL){
+                    addToken(lu, node->token, node->lexeme, NULL);
+                    final_state = 1;
+                }
+                else{
+                    addToken(lu, TK_FIELDID,lexeme, NULL);
+                    final_state = 1;
+                }
                 --current_position;
                 break;
             

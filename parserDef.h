@@ -1,10 +1,11 @@
 #ifndef _PARSER_DEF_H
 #define _PARSER_DEF_H
 
+#include <stdbool.h>
 #include "lexerDef.h"
 
 #define NON_TERMINAL_COUNT 51  // TODO
-#define TERMINAL_COUNT 55      // 54 token types + $
+#define TERMINAL_COUNT 56      // 54 token types + eps + $
 
 #define SYMBOL_SIZE 20
 
@@ -72,15 +73,10 @@ typedef union{
 	NonTerminal nonterm;
 }Symbol;
 
-typedef enum{
-    False,
-    True
-}boolean;
-
 typedef struct _symbolNode{
 	Symbol symbol;
-	boolean isTerminal; //1 for Terminal and 0 for Non Terminal
-	struct _symbolNode* next; //Pointer to the next node in the list
+	bool isTerminal;            // true for Terminal and false for Non Terminal
+	struct _symbolNode* next;   // pointer to the next node in the list
 }SymbolNode;
 
 typedef struct _symbolList{
@@ -95,13 +91,18 @@ typedef struct _rule{
 }Rule;
 
 typedef struct _rules{
-	Rule* head; //A linked list of rules for a non-terminal
-	int ruleCount; //Number of rules for a particular non-terminal
+	Rule* head;     //A linked list of rules for a non-terminal
+	int ruleCount;  //Number of rules for a particular non-terminal
 }Rules;
 
 typedef struct _grammar{
 	int ruleCount;
 	Rules** rules; 	
 }Grammar;
+
+typedef struct _firstAndFollow{
+	bool** first;
+	bool** follow;
+}FirstAndFollow;
 
 #endif

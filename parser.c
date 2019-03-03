@@ -56,7 +56,8 @@ char* terminalMap[] = {
     "TK_GE",
     "TK_NE",
     "TK_ERROR",
-    "e"
+    "e",
+    "$"
 };
 
 char* nonTerminalMap[] = {
@@ -116,7 +117,7 @@ char* nonTerminalMap[] = {
 Grammar* loadGrammar(char* inputFile){
 
 	int ruleNo = 1;
-    boolean alternateRule = False;
+    bool alternateRule = false;
 
 	FILE* input = fopen(inputFile, "r");
 
@@ -125,7 +126,7 @@ Grammar* loadGrammar(char* inputFile){
 		return NULL;
 	}
 
-	boolean isFileEnd = False;
+	bool isFileEnd = false;
 
     Grammar* grammar = (Grammar*)malloc(sizeof(Grammar));
 	grammar->ruleCount = 0;
@@ -139,7 +140,7 @@ Grammar* loadGrammar(char* inputFile){
 	char ch;
     NonTerminal nonTerm;
 	while(1){
-		if(isFileEnd == True)
+		if(isFileEnd == true)
 			return grammar;
 
 		if(!alternateRule){
@@ -158,10 +159,10 @@ Grammar* loadGrammar(char* inputFile){
             nonTerminalSymbol[i] = '\0';
             // printf("LHS symbol: %s\n",nonTerminalSymbol);
             //Load LHS of the rule -- the corresponding enum
-            nonTerm  =  find(nonTerminalSymbol,False);
+            nonTerm  =  find(nonTerminalSymbol,false);
         }
 
-        alternateRule = False;
+        alternateRule = false;
 
 		//Now look for RHS of the rule
         Rule* newRule = (Rule*)malloc(sizeof(Rule));
@@ -176,8 +177,8 @@ Grammar* loadGrammar(char* inputFile){
 
 		SymbolNode* currentNode = list->head;
 
-		while(True){
-			if(isFileEnd == True)
+		while(true){
+			if(isFileEnd == true)
 				break;
 
 			ch = fgetc(input);
@@ -190,17 +191,17 @@ Grammar* loadGrammar(char* inputFile){
 				break;
 
 			else if(ch == EOF){
-				isFileEnd = True;
+				isFileEnd = true;
 				break;
 			}
 
             else if(ch == '|'){
-                    alternateRule = True;
+                    alternateRule = true;
                     // printf("\t*** OR ***\n");
                     break;
             }
 
-			else if(ch >= 'A' && ch <= 'Z' || ch == '_' || ch == 'e'){   // e: epsilon
+			else if(ch >= 'A' && ch <= 'Z' || ch == '_' || ch == 'e'){   // e: eps
 				char* terminalSymbol = (char*)malloc(sizeof(char)*SYMBOL_SIZE);
 				int i = 0;
 				terminalSymbol[i++] = ch;
@@ -211,20 +212,20 @@ Grammar* loadGrammar(char* inputFile){
 				}
 
                 if(ch == '|'){
-                    alternateRule = True;
+                    alternateRule = true;
                     // printf("\t*** OR ***\n");
                     break;
                 }
                 
 				terminalSymbol[i] = '\0';
-				SymbolNode* symbolNode = makeSymbolNode(find(terminalSymbol,True), True);
+				SymbolNode* symbolNode = makeSymbolNode(find(terminalSymbol,true), true);
 
 				//Adding Symbol to the list
 				currentNode = addToRule(list, symbolNode, currentNode);
 				// printf("\t%s\n",terminalSymbol);
 				if(ch == EOF || ch == '\n'){
 					if(ch == EOF)
-						isFileEnd = True;
+						isFileEnd = true;
 					break;
 				}
 			}
@@ -236,7 +237,7 @@ Grammar* loadGrammar(char* inputFile){
 				}
 				nonTerminalSymbol[i] = '\0';
 				
-				SymbolNode* symbolNode = makeSymbolNode(find(nonTerminalSymbol,False), False);
+				SymbolNode* symbolNode = makeSymbolNode(find(nonTerminalSymbol,false), false);
 				//Adding Symbol to the list
 				currentNode = addToRule(list, symbolNode, currentNode);	
                 // printf("\t%s\n",nonTerminalSymbol);
@@ -257,20 +258,20 @@ Grammar* loadGrammar(char* inputFile){
 SymbolNode* makeSymbolNode(int enum_int, int term_or_nonterm){
 	SymbolNode* symbolNode = (SymbolNode*)malloc(sizeof(SymbolNode));
 	symbolNode->next=NULL;
-	Symbol type;
+	Symbol symbol;
 	if(term_or_nonterm==0){
-		type.term = (Token_type)enum_int;
+		symbol.term = (Token_type)enum_int;
 	}
 	else{
-		type.nonterm = (NonTerminal)enum_int;
+		symbol.nonterm = (NonTerminal)enum_int;
 	}
-	symbolNode->symbol = type;
+	symbolNode->symbol = symbol;
 	symbolNode->isTerminal = term_or_nonterm;
 
 	return symbolNode;
 }
 
-int find(char* str, boolean isTerminal){
+int find(char* str, bool isTerminal){
 	
 	//Terminal
 	if(isTerminal){
@@ -308,6 +309,7 @@ SymbolNode* addToRule(SymbolList* list, SymbolNode* symbolNode, SymbolNode* curr
 }
 
 void printGrammar(Grammar* grammar){
+    printf("\n\nGrammar:\n\n\n");
 	for(int i=0;i<NON_TERMINAL_COUNT;i++){
         printf("%d.  <%s> ===> ",(i+1), nonTerminalMap[i]);
 
@@ -339,8 +341,158 @@ void printGrammar(Grammar* grammar){
 	}
 }
 
-// int main(){
-//     Grammar *g = loadGrammar("grammar.txt");
-//     printGrammar(g);
-//     return 0;
-// }
+FirstAndFollow* getFirstAndFollowSets(Grammar* grammar){
+
+	FirstAndFollow* ffSets = (FirstAndFollow*)malloc(sizeof(FirstAndFollow));
+
+	ffSets->first = (bool**)malloc(NON_TERMINAL_COUNT*sizeof(bool*));
+	ffSets->follow = (bool**)malloc(NON_TERMINAL_COUNT*sizeof(bool*));
+	
+	for(int i=0; i<NON_TERMINAL_COUNT; ++i){
+		ffSets->first[i] = (bool*)malloc(TERMINAL_COUNT*sizeof(bool));
+		ffSets->follow[i] = (bool*)malloc(TERMINAL_COUNT*sizeof(bool));
+		memset(ffSets->first[i],0,sizeof(ffSets->first[i]));
+		memset(ffSets->follow[i],0,sizeof(ffSets->follow[i]));		
+	}
+
+	for(int i=0; i < NON_TERMINAL_COUNT; ++i){
+		computeFirstSet(grammar,(NonTerminal)i, ffSets->first);		
+	}
+
+	computeFollowSet(grammar,ffSets);
+	return ffSets;
+}
+
+void computeFirstSet(Grammar* grammar, NonTerminal nonTerminal, bool** first){
+	Rules* rules = grammar->rules[nonTerminal];
+	Rule* temp = rules->head;
+	for(int j = 0;j< rules->ruleCount;j++){
+		SymbolList* symbols = temp->symbols;
+		SymbolNode* temp2 = symbols->head;
+		int k;
+		for(k=0; k < symbols->length; k++){
+			//If a terminal has occurred
+			if(temp2->isTerminal == true){
+				addToSet(first[nonTerminal],temp2->symbol.term);				
+				break;
+			}
+			else{
+                if(nonTerminal!=temp2->symbol.nonterm){
+                    computeFirstSet(grammar, temp2->symbol.nonterm,first);
+				    setUnion(first[nonTerminal], first[temp2->symbol.nonterm]);
+                }
+				if(!first[temp2->symbol.nonterm][EPS]){
+					break;
+				}
+			}			
+			temp2 = temp2->next;
+		}
+		if(k == symbols->length){
+			addToSet(first[nonTerminal],EPS);
+		}
+		temp = temp->next;
+	}
+}
+
+void computeFollowSet(Grammar* grammar, FirstAndFollow* sets){
+	addToSet(sets->follow[program],DOLLAR);
+	bool hasChanged = true;
+	while(hasChanged){
+		hasChanged = computeFollowUtil(grammar,sets->first,sets->follow);
+	}
+}
+
+bool computeFollowUtil(Grammar* grammar, bool** first, bool** follow){
+    bool hasChanged = false;
+	for(int i=0; i<NON_TERMINAL_COUNT; ++i){
+		Rules* rules = grammar->rules[i];
+		Rule* temp = rules->head;
+        // printf("i = %d\n",i);
+		for(int j = 0; j< rules->ruleCount; ++j){
+            // printf("\tj = %d\n",j);
+			SymbolList* symbols = temp->symbols;
+			SymbolNode* temp2 = symbols->head;
+
+			for(int k = 0; k < symbols->length; ++k){
+				//See if it's a non_terminal 
+                // printf("\t\tk = %d\n",k);
+				if(temp2->isTerminal == false){
+
+					//Start from the next node
+					SymbolNode* temp3 = temp2->next;
+
+					while(temp3 != NULL){
+
+						//If terminal
+						if(temp3->isTerminal == true){
+							
+							if(!follow[temp2->symbol.nonterm][ temp3->symbol.term]){
+								hasChanged = true;
+							    addToSet(follow[temp2->symbol.nonterm], temp3->symbol.term);
+                            }
+							break;
+						}
+						//If non-terminal
+						else{
+							hasChanged = hasChanged | setUnion(follow[temp2->symbol.nonterm],first[temp3->symbol.nonterm]);
+
+							//If epsilon not a part
+							if(!first[temp3->symbol.nonterm][EPS]){
+								break;
+							}
+						}
+						temp3 = temp3->next;						
+					}
+					//If entire rule is traversed
+					if(temp3 == NULL){
+						hasChanged = hasChanged | setUnion(follow[temp2->symbol.nonterm],follow[i]);
+					}
+				}								
+				temp2 = temp2->next;
+			}
+			temp = temp->next;
+		}		
+	}
+	return hasChanged;
+}
+
+void addToSet(bool* set, int index){
+    set[index] = true;
+}
+
+bool setUnion(bool* a, bool* b){
+    bool hasChanged = false;
+    for(int i = 0; i < TERMINAL_COUNT; ++i){
+        if(i == EPS)
+            continue;
+        if(a[i] != (a[i]|b[i])){
+            hasChanged = true;
+            a[i] = a[i] | b[i];
+        }
+    }
+    return hasChanged;
+}
+
+void printFirstAndFollow(FirstAndFollow* sets){
+
+	printf("\n\nFirst Set:\n\n");
+	for(int i=0; i < NON_TERMINAL_COUNT; ++i){
+		printf("%d. %s => ",(i+1),nonTerminalMap[i]);
+		printSet(sets->first[i]);
+	}	
+	printf("\n\nFollow Set:\n\n");
+	for(int i=0;i<NON_TERMINAL_COUNT;i++){
+		printf("%d. %s => ",(i+1),nonTerminalMap[i]);
+		printSet(sets->follow[i]);
+	}
+}
+
+void printSet(bool* set){
+	printf("{ ");
+	for(int i=0;i< TERMINAL_COUNT; ++i){
+		if(set[i]){
+			printf("%s ",terminalMap[i]);
+		}
+	}
+	printf("}\n");
+}

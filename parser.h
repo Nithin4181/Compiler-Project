@@ -31,4 +31,12 @@ void printFirstAndFollow(FirstAndFollow* sets);
 
 void printSet(bool* set);
 
+void createParseTable(Grammar* grm, FirstAndFollow* sets, ParsingTable* table);
+
+Cell* get_cell(Rule* rule, int non_term_index);
+
+ParsingTable* initialize_Table();
+
+void print_parsing_table(ParsingTable* table);
+
 #endif

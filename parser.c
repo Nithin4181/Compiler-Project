@@ -407,43 +407,29 @@ bool computeFollowUtil(Grammar* grammar, bool** first, bool** follow){
 	for(int i=0; i<NON_TERMINAL_COUNT; ++i){
 		Rules* rules = grammar->rules[i];
 		Rule* temp = rules->head;
-        // printf("i = %d\n",i);
 		for(int j = 0; j< rules->ruleCount; ++j){
-            // printf("\tj = %d\n",j);
 			SymbolList* symbols = temp->symbols;
 			SymbolNode* temp2 = symbols->head;
 
 			for(int k = 0; k < symbols->length; ++k){
-				//See if it's a non_terminal 
-                // printf("\t\tk = %d\n",k);
 				if(temp2->isTerminal == false){
-
-					//Start from the next node
 					SymbolNode* temp3 = temp2->next;
-
 					while(temp3 != NULL){
-
-						//If terminal
 						if(temp3->isTerminal == true){
-							
 							if(!follow[temp2->symbol.nonterm][ temp3->symbol.term]){
 								hasChanged = true;
 							    addToSet(follow[temp2->symbol.nonterm], temp3->symbol.term);
                             }
 							break;
 						}
-						//If non-terminal
 						else{
 							hasChanged = hasChanged | setUnion(follow[temp2->symbol.nonterm],first[temp3->symbol.nonterm]);
-
-							//If epsilon not a part
 							if(!first[temp3->symbol.nonterm][EPS]){
 								break;
 							}
 						}
 						temp3 = temp3->next;						
 					}
-					//If entire rule is traversed
 					if(temp3 == NULL){
 						hasChanged = hasChanged | setUnion(follow[temp2->symbol.nonterm],follow[i]);
 					}
@@ -474,7 +460,6 @@ bool setUnion(bool* a, bool* b){
 }
 
 void printFirstAndFollow(FirstAndFollow* sets){
-
 	printf("\n\nFirst Set:\n\n");
 	for(int i=0; i < NON_TERMINAL_COUNT; ++i){
 		printf("%d. %s => ",(i+1),nonTerminalMap[i]);
@@ -495,4 +480,131 @@ void printSet(bool* set){
 		}
 	}
 	printf("}\n");
+}
+
+void createParseTable(Grammar* grammar, FirstAndFollow* sets, ParsingTable* table){
+	for(int i=0;i<NON_TERMINAL_COUNT;i++){
+		Rules* rules = grammar->rules[i];
+
+		Rule* temp = rules->head;
+
+		for(int j = 0;j< rules->ruleCount;j++){
+
+			SymbolList* symbols = temp->symbols;
+			SymbolNode* temp2 = symbols->head;
+
+			int to_be_continued = 0;
+
+			for(int k=0;k<symbols->length;k++){
+
+				to_be_continued = 0;
+
+				//Terminal
+				if(temp2->isTerminal==true){
+
+					//If it 
+					if(temp2->symbol.term==EPS){
+						for(int x=0;x<TERMINAL_COUNT;x++){
+							
+							if(sets->follow[i][x]){							
+                                Cell* tempaf = get_cell(temp,i);
+								if(table->cells[i][x]!=NULL && tempaf->rule!=table->cells[i][x]->rule){
+									printf("ERROR: Multiple rules clashing in a table-cell <%s> -> %s\n",nonTerminalMap[i],terminalMap[x]);
+								}
+
+								// table->cells[i][x] = get_cell(temp,i);
+                                table->cells[i][x] = tempaf;
+							}
+						}
+
+						continue;
+					}
+
+					//any other terminal
+					else{
+                        Cell* tempaf = get_cell(temp,i);
+						if(table->cells[i][temp2->symbol.term]!=NULL && tempaf->rule!=table->cells[i][temp2->symbol.term]->rule){
+							printf("ERROR: Multiple rules clashing in a table-cell <%s> -> %s\n",nonTerminalMap[i],terminalMap[temp2->symbol.term]);
+						}
+						// table->cells[i][temp2->symbol.term] = get_cell(temp,i);
+                        table->cells[i][temp2->symbol.term] = tempaf;
+						break;
+					}
+				}
+
+				//Non-terminal
+				else{
+					for(int x=0;x<TERMINAL_COUNT;x++){
+
+						if(sets->first[temp2->symbol.nonterm][x]){
+
+							if(x!=EPS){
+                                Cell* tempaf = get_cell(temp,i);
+								if(table->cells[i][x]!=NULL && table->cells[i][x]->rule!=tempaf->rule){
+									printf("ERROR: Multiple rules clashing in a table-cell <%s> -> %s\n",nonTerminalMap[i],terminalMap[x]);
+								}
+								// table->cells[i][x] = get_cell(temp,i);
+                                table->cells[i][x] = tempaf;
+
+							}
+
+							// exists, then continue
+							else{
+								to_be_continued = 1;
+							}
+						}
+					}
+				}
+
+				if(to_be_continued==1)
+					continue;
+				else
+					break;
+
+				temp2 = temp2->next;
+			}
+
+
+			temp = temp->next;
+		}
+
+		
+	}
+}
+
+Cell* get_cell(Rule* rule, int non_term_index){
+	Cell* new_cell = (Cell*)malloc(sizeof(Cell));
+	new_cell->rule = rule;
+	new_cell->non_term_index = non_term_index;
+
+	return new_cell;
+}
+
+ParsingTable* initialize_Table(){
+	ParsingTable* table = (ParsingTable*)malloc(sizeof(ParsingTable));
+	for(int i=0;i<NON_TERMINAL_COUNT;i++){
+		for(int j=0;j<TERMINAL_COUNT;j++){
+			table->cells[i][j] = NULL;
+		}
+	}
+
+	return table;
+}
+
+void print_parsing_table(ParsingTable* table){
+	printf("\n\nPrinting Parsing Table:\n\n");
+	for(int i=0;i<NON_TERMINAL_COUNT;i++){
+		printf("%2d. %25s : ",(i+1),nonTerminalMap[i]);
+		for(int z=0;z<TERMINAL_COUNT;z++){
+			if(table->cells[i][z]!=NULL){
+				printf("1 ");
+				//printf("%d ",table->cells[i][z]->rule->rule_no);
+			}
+			else
+				printf("0 ");
+			printf(" ");
+		}
+
+		printf("\n\n");
+	}
 }

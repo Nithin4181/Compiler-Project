@@ -105,4 +105,22 @@ typedef struct _firstAndFollow{
 	bool** follow;
 }FirstAndFollow;
 
+struct cell{	
+	
+	//LHS of the rule
+	int non_term_index;
+
+	//Pointer to the RHS of the rule
+	Rule* rule;
+};
+
+typedef struct cell Cell;
+
+struct parsingTable{
+	Cell*  cells[NON_TERMINAL_COUNT][TERMINAL_COUNT];
+};
+
+typedef struct parsingTable ParsingTable;
+
+
 #endif

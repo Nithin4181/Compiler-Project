@@ -10,6 +10,8 @@ int main(int argc, char* argv[]){
     }
     FirstAndFollow* ff = getFirstAndFollowSets(g);
     printFirstAndFollow(ff);
-
+    ParsingTable* pt = (ParsingTable*)malloc(sizeof(ParsingTable));
+    createParseTable(g, ff, pt);
+    print_parsing_table(pt);
     return 0;
 }

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "parser.h"
 
 char* terminalMap[] = {
@@ -54,7 +55,8 @@ char* terminalMap[] = {
     "TK_GT",
     "TK_GE",
     "TK_NE",
-    "TK_ERROR"
+    "TK_ERROR",
+    "e"
 };
 
 char* nonTerminalMap[] = {
@@ -114,6 +116,7 @@ char* nonTerminalMap[] = {
 Grammar* loadGrammar(char* inputFile){
 
 	int ruleNo = 1;
+    boolean alternateRule = False;
 
 	FILE* input = fopen(inputFile, "r");
 
@@ -134,28 +137,31 @@ Grammar* loadGrammar(char* inputFile){
 	}
 
 	char ch;
-
+    NonTerminal nonTerm;
 	while(1){
 		if(isFileEnd == True)
 			return grammar;
 
-		while((ch = fgetc(input))!='<'){
-			if(ch == EOF){
-				return grammar;
-			}
-		}
-		
-		//Load a new rule
+		if(!alternateRule){
+            while((ch = fgetc(input))!='<'){
+                if(ch == EOF){
+                    return grammar;
+		    	}
+		    }
+            //Load a new rule
 
-		char* nonTerminalSymbol = (char*)malloc(sizeof(char)*SYMBOL_SIZE);
-		int i = 0;
-		while((ch = fgetc(input))!='>'){
-			nonTerminalSymbol[i++] = ch;
-		}
-		nonTerminalSymbol[i] = '\0';
+            char* nonTerminalSymbol = (char*)malloc(sizeof(char)*SYMBOL_SIZE);
+            int i = 0;
+            while((ch = fgetc(input))!='>'){
+                nonTerminalSymbol[i++] = ch;
+            }
+            nonTerminalSymbol[i] = '\0';
+            // printf("LHS symbol: %s\n",nonTerminalSymbol);
+            //Load LHS of the rule -- the corresponding enum
+            nonTerm  =  find(nonTerminalSymbol,False);
+        }
 
-		//Load LHS of the rule -- the corresponding enum
-		NonTerminal nonTerm  =  find(nonTerminalSymbol,False);
+        alternateRule = False;
 
 		//Now look for RHS of the rule
         Rule* newRule = (Rule*)malloc(sizeof(Rule));
@@ -163,7 +169,7 @@ Grammar* loadGrammar(char* inputFile){
         newRule->symbols = NULL;
         newRule->ruleNo = ruleNo;
         ruleNo = ruleNo+1;
-
+        
         SymbolList* list = (SymbolList*)malloc(sizeof(SymbolList));
         list->head = NULL;
         list->length = 0;
@@ -175,11 +181,11 @@ Grammar* loadGrammar(char* inputFile){
 				break;
 
 			ch = fgetc(input);
-
+            
 			while(ch == ' ' || ch == '\t' || ch == '=' || ch == '>'){
 				ch = fgetc(input);
 			}
-
+            // printf("\t\tCharacter read: %c\n",ch);
 			if(ch == '\n')
 				break;
 
@@ -188,23 +194,34 @@ Grammar* loadGrammar(char* inputFile){
 				break;
 			}
 
-			else if(ch >= 'A' && ch <= 'Z' || ch == 'e'){   // e: epsilon
-				
+            else if(ch == '|'){
+                    alternateRule = True;
+                    // printf("\t*** OR ***\n");
+                    break;
+            }
+
+			else if(ch >= 'A' && ch <= 'Z' || ch == '_' || ch == 'e'){   // e: epsilon
 				char* terminalSymbol = (char*)malloc(sizeof(char)*SYMBOL_SIZE);
 				int i = 0;
 				terminalSymbol[i++] = ch;
 				ch = fgetc(input);
-				while(ch >= 'A' && ch <= 'Z'){
+				while(ch >= 'A' && ch <= 'Z' || ch == '_'){
 					terminalSymbol[i++] = ch;
 					ch = fgetc(input);
 				}
-				terminalSymbol[i] = '\0';
 
+                if(ch == '|'){
+                    alternateRule = True;
+                    // printf("\t*** OR ***\n");
+                    break;
+                }
+                
+				terminalSymbol[i] = '\0';
 				SymbolNode* symbolNode = makeSymbolNode(find(terminalSymbol,True), True);
 
 				//Adding Symbol to the list
 				currentNode = addToRule(list, symbolNode, currentNode);
-				
+				// printf("\t%s\n",terminalSymbol);
 				if(ch == EOF || ch == '\n'){
 					if(ch == EOF)
 						isFileEnd = True;
@@ -221,18 +238,19 @@ Grammar* loadGrammar(char* inputFile){
 				
 				SymbolNode* symbolNode = makeSymbolNode(find(nonTerminalSymbol,False), False);
 				//Adding Symbol to the list
-				currentNode = addToRule(list, symbolNode, currentNode);			
+				currentNode = addToRule(list, symbolNode, currentNode);	
+                // printf("\t%s\n",nonTerminalSymbol);
 			}
 		}
-		
+
 		//Assigning the symbol list to the newRule
 		newRule->symbols = list;
-
 		//Add new rule to grammar
         newRule->next = grammar->rules[nonTerm]->head;
         grammar->rules[nonTerm]->head = newRule;
         grammar->rules[nonTerm]->ruleCount++;
-        grammar->ruleCount;
+        grammar->ruleCount++;
+        
 	}
 } 
 
@@ -252,16 +270,15 @@ SymbolNode* makeSymbolNode(int enum_int, int term_or_nonterm){
 	return symbolNode;
 }
 
-int find(char* str, int term_or_nonterm){
+int find(char* str, boolean isTerminal){
 	
 	//Terminal
-	if(term_or_nonterm==0){
+	if(isTerminal){
 		for(int i=0;i<TERMINAL_COUNT;i++){
 			if(strcmp(str,terminalMap[i])==0)
 				return i;
 		}
 	}
-
 	//Non terminal
 	else{
 		for(int i=0;i<NON_TERMINAL_COUNT;i++){
@@ -291,10 +308,8 @@ SymbolNode* addToRule(SymbolList* list, SymbolNode* symbolNode, SymbolNode* curr
 }
 
 void printGrammar(Grammar* grammar){
-	printf("\n------------------------ Printing Grammar from Data Structure---------------------\n\n");
-
 	for(int i=0;i<NON_TERMINAL_COUNT;i++){
-		printf("%d.  <%s> ===> ",(i+1), nonTerminalMap[i]);
+        printf("%d.  <%s> ===> ",(i+1), nonTerminalMap[i]);
 
 		Rules* rules = grammar->rules[i];
 
@@ -322,6 +337,10 @@ void printGrammar(Grammar* grammar){
 		}
 		printf("\n");
 	}
-
-	printf("\n------------------------ Grammar Over---------------------\n");
 }
+
+// int main(){
+//     Grammar *g = loadGrammar("grammar.txt");
+//     printGrammar(g);
+//     return 0;
+// }

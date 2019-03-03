@@ -3,7 +3,7 @@
 
 #include "lexerDef.h"
 
-#define NON_TERMINAL_COUNT 46  // TODO
+#define NON_TERMINAL_COUNT 51  // TODO
 #define TERMINAL_COUNT 55      // 54 token types + $
 
 #define SYMBOL_SIZE 20

@@ -39,7 +39,6 @@ void addChildren(TreeNode* node, Rule* rule){
     TreeNode* temp = children->head;
 	SymbolList* symbols = rule->symbols;
 	SymbolNode* temp2 = symbols->head;
-
 	for(int k = 0; k < symbols->length; ++k){
 		TreeNode* newNode;
 		//Terminal
@@ -61,7 +60,7 @@ void addChildren(TreeNode* node, Rule* rule){
 		//Go to the next symbol in the rule
 		temp2 = temp2->next;
 		//Increase the number of siblings
-		children->siblingCount++;
+		(children->siblingCount)++;
 	}
 	//Assigning the children to the current node
 	node->children = children;

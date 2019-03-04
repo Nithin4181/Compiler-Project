@@ -60,7 +60,9 @@ char* tokenTypeMap[] = {        // To print token type returned
     "TK_GT",
     "TK_GE",
     "TK_NE",
-    "TK_ERROR"
+    "TK_ERROR",
+    "EPS",
+    "DOLLAR"
 };
 
 #define SIZE_BUFFER 1024        // Size of input buffer used to read source code
@@ -304,7 +306,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     lexeme[lexeme_position]=current_buffer[current_position];
                     lexeme_position++;
                     current_position++;
-                    fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                    fprintf(stderr, "Line %d\t| Lexical Error: Unknown pattern %s\n", line_no, lexeme);
                     state = 52;
                 }          
             break;
@@ -399,7 +401,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     }
                 }
                 else{
-                    fprintf(stderr, " Lexical Error: Wrong Identifier name %s at line %d\n", lexeme ,line_no);
+                    fprintf(stderr, "Line %d\t| Lexical Error: Wrong Identifier name %s\n", line_no, lexeme);
                     state = 52;
                 }
                 break;
@@ -444,12 +446,12 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     *fp=getStream(*fp);
                     if (*fp==NULL){
                         end_file = 1;
-                        fprintf(stderr, " Lexical Error: Wrong Identifier name %s at line %d\n", lexeme ,line_no);
+                        fprintf(stderr, "Line %d\t| Lexical Error: Wrong Identifier name %s\n", line_no, lexeme);
                         state = 52;
                     }
                 }
                 else{
-                    fprintf(stderr, " Lexical Error: Wrong Identifier name %s at line %d\n", lexeme ,line_no);
+                    fprintf(stderr, "Line %d\t| Lexical Error: Wrong Identifier name %s\n", line_no, lexeme);
                     state = 52;
                 }
                 break;
@@ -466,12 +468,12 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     *fp=getStream(*fp);
                     if (*fp==NULL){
                         end_file = 1;
-                        fprintf(stderr, " Lexical Error: Wrong Identifier name %s at line %d\n", lexeme ,line_no);
+                        fprintf(stderr, "Line %d\t| Lexical Error: Wrong Identifier name %s\n", line_no, lexeme);
                         state = 52;
                     }
                 }
                 else{
-                    fprintf(stderr, " Lexical Error: Wrong Identifier name %s at line %d\n", lexeme ,line_no);
+                    fprintf(stderr, "Line %d\t| Lexical Error: Wrong Identifier name %s\n", line_no, lexeme);
                     state = 52;
                 }
                 break;
@@ -560,12 +562,12 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     *fp=getStream(*fp);
                     if (*fp==NULL){
                         end_file = 1;
-                        fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        fprintf(stderr, "Line %d\t| Lexical Error: Unknown pattern %s\n", line_no, lexeme);
                         state = 52;
                     }
                 }
                 else{
-                    fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                    fprintf(stderr, "Line %d\t| Lexical Error: Unknown pattern %s\n", line_no, lexeme);
                     state = 52;
                 }
                 break;
@@ -582,12 +584,12 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     *fp=getStream(*fp);
                     if (*fp==NULL){
                         end_file = 1;
-                        fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        fprintf(stderr, "Line %d\t| Lexical Error: Unknown pattern %s\n", line_no, lexeme);
                         state = 52;
                     }
                 }
                 else{
-                    fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                    fprintf(stderr, "Line %d\t| Lexical Error: Unknown pattern %s\n", line_no, lexeme);
                     state = 52;
                 }
                 break;
@@ -610,12 +612,12 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     *fp=getStream(*fp);
                     if (*fp==NULL){
                         end_file = 1;
-                        fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        fprintf(stderr, "Line %d\t| Lexical Error: Unknown pattern %s\n", line_no, lexeme);
                         state = 52;
                     }
                 }
                 else{
-                    fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                    fprintf(stderr, "Line %d\t| Lexical Error: Unknown pattern %s\n", line_no, lexeme);
                     state = 52;
                 }
                 break;
@@ -653,13 +655,13 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     current_position=0;
                     *fp=getStream(*fp);
                     if (*fp==NULL){
-                        fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        fprintf(stderr, "Line %d\t| Lexical Error: Unknown pattern %s\n", line_no, lexeme);
                         end_file=1;
                         state = 52;
                     }
                }
                 else{
-                    fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                    fprintf(stderr, "Line %d\t| Lexical Error: Unknown pattern %s\n", line_no, lexeme);
                     state = 52;
                 }
                 break;
@@ -687,14 +689,14 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     *fp=getStream(*fp);
                     if (*fp==NULL){
                         strcpy(lexeme,"<-");
-                        fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        fprintf(stderr, "Line %d\t| Lexical Error: Unknown pattern %s\n", line_no, lexeme);
                         end_file=1;
                         state = 52;
                     }
                }
                 else{
                     strcpy(lexeme,"<-");
-                    fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                    fprintf(stderr, "Line %d\t| Lexical Error: Unknown pattern %s\n", line_no, lexeme);
                     state = 52;
                 }
                 break;
@@ -707,7 +709,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 else
                 {
                     strcpy(lexeme,"<--");
-                    fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                    fprintf(stderr, "Line %d\t| Lexical Error: Unknown pattern %s\n", line_no, lexeme);
                     state = 52;
                 }
                 break;
@@ -770,7 +772,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
 
             case 32:
                 if(strlen(lexeme) > 20){
-                    fprintf(stderr, " Lexical Error: Identifier name %s is too long at line %d\n", lexeme ,line_no);
+                    fprintf(stderr, "Line %d\t| Lexical Error: Identifier name %s is too long\n", line_no, lexeme);
                     state = 52;
                 }
                 else{                    
@@ -800,13 +802,13 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     *fp=getStream(*fp);
                     if (*fp==NULL){
                         end_file = 1;
-                        fprintf(stderr, " Lexical Error: Invalid real number %s at line %d\n", lexeme ,line_no);
+                        fprintf(stderr, "Line %d\t| Lexical Error: Invalid real number %s\n", line_no, lexeme);
                         state = 52;
                     }
                 }
                 else{
-                    fprintf(stderr, " Lexical Error: Invalid real number %s at line %d\n", lexeme ,line_no);
-                        state = 52;
+                    fprintf(stderr, "Line %d\t| Lexical Error: Invalid real number %s\n", line_no, lexeme);
+                    state = 52;
                 }
                 break;
 
@@ -822,13 +824,13 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     *fp=getStream(*fp);
                     if (*fp==NULL){
                         end_file = 1;
-                        fprintf(stderr, " Lexical Error: Invalid real number %s at line %d\n", lexeme ,line_no);
+                        fprintf(stderr, "Line %d\t| Lexical Error: Invalid real number %s\n", line_no, lexeme);
                         state = 52;
                     }
                 }
                 else{
-                    fprintf(stderr, " Lexical Error: Invalid real number %s at line %d\n", lexeme ,line_no);
-                        state = 52;
+                    fprintf(stderr, "Line %d\t| Lexical Error: Invalid real number %s\n", line_no, lexeme);
+                    state = 52;
                 }
                 break;
 
@@ -896,7 +898,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     final_state = 1;
                 }
                 else if(strlen(lexeme) > 30){
-                    fprintf(stderr, " Lexical Error: Function name %s is too long at line %d\n", lexeme ,line_no);
+                    fprintf(stderr, "Line %d\t| Lexical Error: Function name %s is too long\n", line_no, lexeme);
                     state = 52;
                 }        
                 else{
@@ -946,12 +948,12 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     *fp=getStream(*fp);
                     if (*fp==NULL){
                         end_file = 1;
-                        fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        fprintf(stderr, "Line %d\t| Lexical Error: Unknown pattern %s\n", line_no, lexeme);
                         state = 52;
                     }
                 }
                 else{
-                    fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                    fprintf(stderr, "Line %d\t| Lexical Error: Unknown pattern %s\n", line_no, lexeme);
                     state = 52;
                 }
                 break;
@@ -973,12 +975,12 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                     *fp=getStream(*fp);
                     if (*fp==NULL){
                         end_file = 1;
-                        fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                        fprintf(stderr, "Line %d\t| Lexical Error: Unknown pattern %s\n", line_no, lexeme);
                         state = 52;
                     }
                 }
                 else{
-                    fprintf(stderr, " Lexical Error: Unknown pattern %s at line %d\n", lexeme ,line_no);
+                    fprintf(stderr, "Line %d\t| Lexical Error: Unknown pattern %s\n", line_no, lexeme);
                     state = 52;
                 }
                 break;

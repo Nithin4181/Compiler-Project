@@ -1,5 +1,5 @@
 driver:	driver.o lexer.o lookup.o parser.o NaryTree.o stack.o
-	gcc-5 -g -o exe driver.o lexer.o lookup.o parser.o NaryTree.o stack.o
+	gcc-5 -g -o stage1exe driver.o lexer.o lookup.o parser.o NaryTree.o stack.o
 
 driver.o:	driver.c lexer.h parser.h
 	gcc-5 -g -c driver.c

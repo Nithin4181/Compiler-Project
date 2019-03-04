@@ -65,7 +65,7 @@ typedef enum{
 
 typedef union{
     int integer;
-    int real;
+    float real;
 }Val;
 
 typedef struct lexical_unit{

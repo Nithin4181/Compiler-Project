@@ -2,6 +2,8 @@
 #define _PARSER_H
 
 #include "parserDef.h"
+#include "stack.h"
+#include "NaryTree.h"
 
 Grammar* loadGrammar(char* inputFile);
 
@@ -36,5 +38,17 @@ ParsingTable makeNewParseTable();
 void createParseTable(Grammar* grammar, FirstAndFollow* sets, ParsingTable table);
 
 void printParsingTable(ParsingTable table);
+
+ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAndFollow* ff, int* parseErrors);
+
+void printParseTree(ParseTree tree, char* fname);
+
+void printParseTree_util(TreeNode* node, FILE** fp1);
+
+void printNode(FILE** fp, TreeNode* node, bool isLeaf, char* empty, char* no, char* yes, char* root);
+
+void printTopOfStack(TreeNode* treeNode);
+
+void printChildren(Children* children);
 
 #endif

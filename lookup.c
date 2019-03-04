@@ -4,6 +4,9 @@
 #include "lookup.h"
 
 Lookup* createTable(int slotCount){
+    /*Description: Create an empty Lookup Table*/
+    /*Arguments: int*/
+    /*Return type: Lookup pointer*/
     Lookup* lookupTable = (Lookup*)malloc(sizeof(Lookup));
     lookupTable->slotCount = slotCount;
     lookupTable->slots = (List**)malloc(slotCount*sizeof(List*));
@@ -16,6 +19,9 @@ Lookup* createTable(int slotCount){
 }
 
 void addKeyword(Lookup* lookupTable, char* lexeme, Token_type token){
+    /*Description: Adds the lexeme, token */
+    /*Arguments: Lookup pointer, Char pointer*, Token_type enum/
+    /*Return type: void*/
     int index = hash(lexeme,lookupTable->slotCount);
     Node* node = (Node*)malloc(sizeof(Node));
     node->token = token;
@@ -26,6 +32,9 @@ void addKeyword(Lookup* lookupTable, char* lexeme, Token_type token){
 }
 
 int hash(char* lexeme, int slotCount){
+    /*Description: Create a hash for a lexeme in the Lookup table*/
+    /*Arguments: Char pointer, int*/
+    /*Return type: int*/
 	int sum = 0;
 	for(int i=0; i<strlen(lexeme); ++i){
 		sum = (sum*7 + ((int)lexeme[i]))%1000000007;
@@ -37,6 +46,9 @@ int hash(char* lexeme, int slotCount){
 }
 
 void fillTable(Lookup* lookupTable){
+    /*Description: Fill table with standard Language specific keywords*/
+    /*Arguments: Lookup pointer*/
+    /*Return type: void*/
 	addKeyword(lookupTable, "with", TK_WITH);
 	addKeyword(lookupTable, "parameters", TK_PARAMETERS);
 	addKeyword(lookupTable, "end", TK_END);
@@ -64,6 +76,9 @@ void fillTable(Lookup* lookupTable){
 }
 
 Node* getTokenType(char* lexeme, Lookup* lookupTable){
+    /*Description: Retrieve token type from the Lookup table based on the passed lexeme*/
+    /*Arguments: Char pointer, Lookup pointer*/
+    /*Return type: Node pointer*/
 	int index = hash(lexeme, lookupTable->slotCount);
 	Node* temp = lookupTable->slots[index]->head;
 	while(temp!=NULL){

@@ -80,6 +80,10 @@ int end_file = 0;
 Lookup* lookupTable;
 
 FILE *getStream(FILE *fp){      // Get input chunk from file
+    /*Description: Returns the position of the file after reading a input chunk of
+    size SIZE_BUFFER, till end of each line*/
+    /*Arguments: File pointer*/
+    /*Return Type: File pointer or NULL*/
     char *temp = previous_buffer;
     previous_buffer = current_buffer;
     current_buffer = temp;
@@ -103,13 +107,19 @@ FILE *getStream(FILE *fp){      // Get input chunk from file
 }
 
 void addToken(Lexical_Unit* lu, Token_type type, char* lexeme, Val* value){ // Create token from given values
-	lu->line_no = line_no;
+	/*Description: Returns the next token from the given input lexeme*/
+    /*Arguments: Lexical_Unit pointer, Token_type enum, Char pointer, Val union */
+    /*Return Type: void*/
+    lu->line_no = line_no;
 	lu->token = type;
 	lu->lexeme = lexeme;
 	lu->val = value;
 }
 
 FILE *lexer_initialisation(char *sourceFile){        // Initialize the lexer
+    /*Description: Initialize the Lexer*/
+    /*Arguments: Char pointer*/
+    /*Return Type: File pointer*/
     current_buffer=(char*)malloc(sizeof(char)*(SIZE_BUFFER+1));
     previous_buffer=(char*)malloc(sizeof(char)*(SIZE_BUFFER+1));
 
@@ -131,6 +141,9 @@ FILE *lexer_initialisation(char *sourceFile){        // Initialize the lexer
 }
 
 Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
+    /*Description: Get the next Lexical token*/
+    /*Arguments: Pointer to a File pointer*/
+    /*Return Type: Lexical_Unit pointer*/
     if(end_file==1){
         if(*fp != NULL)   fclose(*fp);
         return NULL;
@@ -162,7 +175,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
     while (1){
         // printf("Current state = %d\tCharacter = %c\n",state,current_buffer[current_position]);
         switch (state){
-            case 0:
+            case 0: //Start state
                 if (current_buffer[current_position]=='\0'){
                     current_position = 0;
                     *fp = getStream(*fp);
@@ -336,7 +349,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
 
             case 2:
                 strcpy(lexeme,"%");
-                addToken(lu, TK_COMMENT,lexeme, NULL);
+                addToken(lu, TK_COMMENT,lexeme, NULL); // Return token TK_COMMENT
                 final_state = 1;
                 while(current_buffer[current_position]!='\n'){    // Ignore line
                     if (current_buffer[current_position]=='\0'){
@@ -476,73 +489,73 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 }
                 break;
             
-            case 8:
+            case 8: // Return token TK_SQL
                 strcpy(lexeme,"[");
                 addToken(lu, TK_SQL,lexeme, NULL);
                 final_state=1;
                 break;
 
-            case 9:
+            case 9: // Return token TK_SQR
                 strcpy(lexeme,"]");
                 addToken(lu, TK_SQR,lexeme, NULL);
                 final_state=1;
                 break;
 
-            case 10:
+            case 10: // Return token TK_COMMA
                 strcpy(lexeme,",");
                 addToken(lu, TK_COMMA,lexeme, NULL);
                 final_state=1;
                 break;
 
-            case 11:
+            case 11: // Return token TK_SEM
                 strcpy(lexeme,";");
                 addToken(lu, TK_SEM,lexeme, NULL);
                 final_state=1;
                 break;
 
-            case 12:
+            case 12: // Return token TK_COLON
                 strcpy(lexeme,":");
                 addToken(lu, TK_COLON,lexeme, NULL);
                 final_state=1;
                 break;
 
-            case 13:
+            case 13: // Return token TK_DOT
                 strcpy(lexeme,".");
                 addToken(lu, TK_DOT,lexeme, NULL);
                 final_state=1;
                 break;
 
-            case 14:
+            case 14: // Return token TK_OP
                 strcpy(lexeme,"(");
                 addToken(lu, TK_OP,lexeme, NULL);
                 final_state=1;
                 break;
 
-            case 15:
+            case 15: // Return token TK_CL
                 strcpy(lexeme,")");
                 addToken(lu, TK_CL,lexeme, NULL);
                 final_state=1;
                 break;
 
-            case 16:
+            case 16: // Return token TK_PLUS
                 strcpy(lexeme,"+");
                 addToken(lu, TK_PLUS,lexeme, NULL);
                 final_state=1;
                 break;
 
-            case 17:
+            case 17: // Return token TK_MINUS
                 strcpy(lexeme,"-");
                 addToken(lu, TK_MINUS,lexeme, NULL);
                 final_state=1;
                 break;
 
-            case 18:
+            case 18: // Return token TK_MUL
                 strcpy(lexeme,"*");
                 addToken(lu, TK_MUL,lexeme, NULL);
                 final_state=1;
                 break;
 
-            case 19:
+            case 19: // Return token TK_DIV
                 strcpy(lexeme,"/");
                 addToken(lu, TK_DIV,lexeme, NULL);
                 final_state=1;
@@ -592,7 +605,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 }
                 break;
 
-            case 22:
+            case 22: // Return token TK_NOT
                 strcpy(lexeme,"~");
                 addToken(lu, TK_NOT,lexeme, NULL);
                 final_state=1;
@@ -664,14 +677,14 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 }
                 break;
 
-            case 33:
+            case 33: // Return token TK_LT
                 strcpy(lexeme,"<");
                 addToken(lu, TK_LT,lexeme, NULL);
                 final_state=1;
                 --current_position;             // Retraction state
                 break;
 
-            case 26:
+            case 26: // Return token TK_LE
                 strcpy(lexeme,"<=");
                 addToken(lu, TK_LE,lexeme, NULL);
                 final_state=1;
@@ -712,7 +725,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 }
                 break;
 
-            case 29:
+            case 29: // Return token TK_ASSIGNOP
                 strcpy(lexeme,"<---");
                 addToken(lu, TK_ASSIGNOP,lexeme, NULL);
                 final_state=1;
@@ -768,7 +781,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 }
                 break;
 
-            case 32:
+            case 32: // Return token TK_ID
                 if(strlen(lexeme) > 20){
                     fprintf(stderr, " Lexical Error: Identifier name %s is too long at line %d\n", lexeme ,line_no);
                     state = 52;
@@ -832,7 +845,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 }
                 break;
 
-            case 37:
+            case 37: // Return token TK_RNUM
                 val = (Val*)malloc(sizeof(Val));
                 val->real = atof(lexeme);
                 addToken(lu, TK_RNUM,lexeme, val);
@@ -889,7 +902,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 }
                 break;
             
-            case 40:
+            case 40: // Return token TK_FUNID or token retrieved from the Lookup Table
                 node = getTokenType(lexeme,lookupTable);
                 if(node != NULL){
                     addToken(lu, node->token, node->lexeme, NULL);
@@ -928,7 +941,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 }
                 break;
             
-            case 42:
+            case 42: // Return token TK_RECORDID
                 addToken(lu, TK_RECORDID,lexeme, NULL);
                 final_state = 1;
                 --current_position;     // Retraction state
@@ -956,7 +969,7 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 }
                 break;
 
-            case 44:
+            case 44: // Return token TK_AND
                 addToken(lu, TK_AND,lexeme, NULL);
                 final_state = 1;
                 break;
@@ -983,33 +996,33 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
                 }
                 break;
             
-            case 46:
+            case 46: // Return token TK_OR
                 addToken(lu, TK_OR,lexeme, NULL);
                 final_state = 1;
                 break;
             
-            case 47:
+            case 47: // Return token TK_EQ
                 addToken(lu, TK_EQ,lexeme, NULL);
                 final_state = 1;
                 break;
 
-            case 48:
+            case 48: // Return token TK_GT
                 addToken(lu, TK_GT,lexeme, NULL);
                 final_state = 1;
                 --current_position;     // Retraction state
                 break;
 
-            case 49:
+            case 49: // Return token TK_GE
                 addToken(lu, TK_GE,lexeme, NULL);
                 final_state = 1;
                 break;
             
-            case 50:
+            case 50: // Return token TK_NE
                 addToken(lu, TK_NE,lexeme, NULL);
                 final_state = 1;
                 break;
             
-            case 51:
+            case 51: // Return token TK_FIELDID or retrieved token from Lookup Table
                 node = getTokenType(lexeme,lookupTable);
                 if(node != NULL){
                     addToken(lu, node->token, node->lexeme, NULL);
@@ -1034,6 +1047,9 @@ Lexical_Unit* getNextToken(FILE **fp){   // Return the next token
 }
 
 void removeComments(char *testcaseFile, char* cleanFile){
+    /*Description: Remove comments from the source code */
+    /*Arguments: Char pointer, Char pointer*/
+    /*Return type: void*/
 	current_buffer = (char*)malloc(sizeof(char)*(SIZE_BUFFER+1));
 	previous_buffer = (char*)malloc(sizeof(char)*(SIZE_BUFFER+1));
 	
@@ -1098,6 +1114,10 @@ void removeComments(char *testcaseFile, char* cleanFile){
 }
 
 void printTokenList(char *sourceFile){
+    /*Description: Print the token list from the sourcefile*/
+    /*Arguments: Char pointer*/
+    /*Return type: void*/
+
 	//Allocating Memory for buffers
 	current_buffer = (char*)malloc(sizeof(char)*(SIZE_BUFFER+1));
 	previous_buffer = (char*)malloc(sizeof(char)*(SIZE_BUFFER+1));

@@ -96,7 +96,6 @@ FILE *getStream(FILE *fp){      // Get input chunk from file
     
     int no_of_char;
     if ((no_of_char = fread(current_buffer,sizeof(char),SIZE_BUFFER,fp))>0){
-        printf("TEST 2\n");
         current_buffer[SIZE_BUFFER]='\0';
         return fp;
     }

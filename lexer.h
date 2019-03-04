@@ -3,16 +3,21 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "lexerDef.h"
 #include "lookup.h"
 
+Lexical_Unit* getNextTokenUtil(FILE** fp, bool printErrors);
+
 Lexical_Unit* getNextToken(FILE** fp);
+
+Lexical_Unit* getNextToken_NoError(FILE** fp);
 
 FILE* getStream(FILE* fp);
 
 void addToken(Lexical_Unit* token, Token_type type, char* lexeme, Val* value);
 
-void removeComments(char *testcaseFile, char* cleanFile);
+void removeComments(char *testcaseFile);
 
 FILE *lexer_initialisation(char *sourceFile);
 

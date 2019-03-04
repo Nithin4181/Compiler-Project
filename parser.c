@@ -570,10 +570,6 @@ void printParsingTable(ParsingTable table){
 }
 
 ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAndFollow* ff, int* parseErrors){
-	/**********************************************************************/
-
-							//INITIALIZATION PHASE
-
 	//Initialize_lexer
 	FILE* fp = lexer_initialisation(testcaseFile);
 
@@ -583,10 +579,6 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
 	}
 
 	printf("\n\n------------------------------LEXER INITIALIZED--------------------------\n\n");
-
-	//Initializing ParseTree
-	//ParseTree* tree = initialize_tree();
-    // ParseTree* tree = (ParseTree*)malloc(sizeof(ParseTree));
 
 	//Making Start symbol as the root of parse tree
     ParseTree tree = makeNode(false,program,NULL);
@@ -605,14 +597,10 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
 
 	printf("\n\nStart obtaining tokens from lexer and parse them\n\n");
 
-	/****************************************************************************/
-								//Parsing Phase Begins
-
 	Token_type lookahead;
 
 	//Initially get a token from the file
 	Lexical_Unit* lu = getNextToken(&fp);
-
 
 	//If first token received is NULL
 	if(lu == NULL){
@@ -763,11 +751,7 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
 
 void printParseTree(ParseTree tree, char* fname){
 	FILE* fp1 = fopen(fname,"w");
-
-	//fprintf(fp1,"\n------------------------------------------------------Printing Parse Tree-----------------------------------------------------\n\n");
 	fprintf(fp1,"\n------------------------------------------------------Printing Parse Tree On the Console-----------------------------------------------\n\n");
-	
-	//fprintf(fp1, "%-25s %-10s %-15s %-15s %-30s %-5s %s\n\n\n", "LEXEME","LINE","TOKEN","VALUE","PARENT","LEAF","NODE");
 	fprintf(fp1,"%-25s %-10s %-15s %-15s %-30s %-5s %s\n\n\n", "LEXEME","LINE","TOKEN","VALUE","PARENT","LEAF","NODE");
 
 	printParseTree_util(tree,&fp1);
@@ -821,37 +805,30 @@ void printNode(FILE** fp1, TreeNode* node, bool isLeaf, char* empty, char* no, c
 		if(node->content->isTerminal == false){
 			//Root Node
 			if(node->parent == NULL){
-				//fprintf(*fp, "%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,root,yes,NonTerminalMap[node->info->type.nonterminal]);
 				fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,root,yes,nonTerminalMap[node->content->type.nonterm]);
 			}
 			else{
-				//fprintf(*fp, "%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,NonTerminalMap[node->parent->info->type.nonterminal],yes,NonTerminalMap[node->info->type.nonterminal]);
 				fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,nonTerminalMap[node->parent->content->type.nonterm],yes,nonTerminalMap[node->content->type.nonterm]);
 			}
 		}	
 		//No lexeme for epsilon
 		else if(node->content->type.term==EPS){			
-			//fprintf(*fp, "%-25s %-10s %-15s %-15s %-30s %-5s %s\n", empty,empty,empty,empty,NonTerminalMap[node->parent->info->type.nonterminal],yes,TerminalMap[node->info->type.terminal]);
 			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s %s\n", empty,empty,empty,empty,nonTerminalMap[node->parent->content->type.nonterm],yes,terminalMap[node->content->type.term]);
 		}
 		//Some terminal nodes may not be assigned lexical tokens since they are not matched -- ERROR CASE
 		else if(node->lu == NULL){
-			//fprintf(*fp, "%-25s %-10s %-15s %-15s %-30s %-5s %s\n", error, error, error, empty, NonTerminalMap[node->parent->info->type.nonterminal], yes, TerminalMap[node->info->type.terminal]);
 			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s %s\n", error, error, error, empty, nonTerminalMap[node->parent->content->type.nonterm], yes, terminalMap[node->content->type.term]);
 		}		
         //Integer
 		else if(node->lu->token == TK_NUM){
-			//fprintf(*fp, "%-25s %-10d %-15s %-15d %-30s %-5s %s\n", node->lexicalTOKEN->lexeme, node->lexicalTOKEN->line_no, TerminalMap[node->lexicalTOKEN->type], node->lexicalTOKEN->value->num, NonTerminalMap[node->parent->info->type.nonterminal], yes, TerminalMap[node->info->type.terminal]);
 			fprintf(*fp1,"%-25s %-10d %-15s %-15d %-30s %-5s %s\n", node->lu->lexeme, node->lu->line_no, terminalMap[node->lu->token], node->lu->val->integer, nonTerminalMap[node->parent->content->type.nonterm], yes, terminalMap[node->content->type.term]);
 		}
 		//Real
 		else if(node->lu->token == TK_RNUM){
-			//fprintf(*fp, "%-25s %-10d %-15s %-15f %-30s %-5s %s\n", node->lexicalTOKEN->lexeme, node->lexicalTOKEN->line_no, TerminalMap[node->lexicalTOKEN->type], node->lexicalTOKEN->value->r_num, NonTerminalMap[node->parent->info->type.nonterminal], yes, TerminalMap[node->info->type.terminal]);
 			fprintf(*fp1,"%-25s %-10d %-15s %-15f %-30s %-5s %s\n", node->lu->lexeme, node->lu->line_no, terminalMap[node->lu->token], node->lu->val->real, nonTerminalMap[node->parent->content->type.nonterm], yes, terminalMap[node->content->type.term]);
 		}
 		//Not an integer or Real Number
 		else{
-			//fprintf(*fp, "%-25s %-10d %-15s %-15s %-30s %-5s %s\n", node->lexicalTOKEN->lexeme, node->lexicalTOKEN->line_no, TerminalMap[node->lexicalTOKEN->type], empty, NonTerminalMap[node->parent->info->type.nonterminal], yes, TerminalMap[node->info->type.terminal]);
 			fprintf(*fp1,"%-25s %-10d %-15s %-15s %-30s %-5s %s\n", node->lu->lexeme, node->lu->line_no, terminalMap[node->lu->token], empty, nonTerminalMap[node->parent->content->type.nonterm], yes, terminalMap[node->content->type.term]);
 		}
 	}
@@ -859,11 +836,9 @@ void printNode(FILE** fp1, TreeNode* node, bool isLeaf, char* empty, char* no, c
 	else{
 		//Root Node
 		if(node->parent == NULL){
-			//fprintf(*fp, "%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,root,no,NonTerminalMap[node->info->type.nonterminal]);
 			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,root,no,nonTerminalMap[node->content->type.nonterm]);
 		}
 		else{
-			//fprintf(*fp, "%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,NonTerminalMap[node->parent->info->type.nonterminal],no,NonTerminalMap[node->info->type.nonterminal]);
 			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,nonTerminalMap[node->parent->content->type.nonterm],no,nonTerminalMap[node->content->type.nonterm]);
 		}
 	}

@@ -4,16 +4,16 @@ driver:	driver.o lexer.o lookup.o parser.o NaryTree.o stack.o
 driver.o:	driver.c lexer.h parser.h
 	gcc-5 -g -c driver.c
 
-parser.o:	parser.c parser.h parserDef.h
+parser.o:	parser.c parser.h parserDef.h lexer.h lexerDef.h
 	gcc-5 -g -c parser.c
 
 lexer.o:	lexer.c	lexer.h lexerDef.h lookup.h
 	gcc-5 -g -c lexer.c
 
-NaryTree.o:	NaryTree.c NaryTree.h parserDef.h
+NaryTree.o:	NaryTree.c NaryTree.h parserDef.h lexerDef.h
 	gcc-5 -g -c NaryTree.c
 
-stack.o:	stack.c stack.h NaryTree.h parserDef.h
+stack.o:	stack.c stack.h NaryTree.h parserDef.h lexerDef.h
 	gcc-5 -g -c stack.c
 
 lookup.o:	lookup.c lookup.h

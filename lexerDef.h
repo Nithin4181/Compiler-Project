@@ -59,8 +59,8 @@ typedef enum{
     TK_GE,
     TK_NE,
     TK_ERROR,
-    EPS,                     // Empty string. Terminal symbol.
-    DOLLAR
+    EPS,                    // Empty string. Terminal symbol.
+    DOLLAR                  // Bottom of stack
 }Token_type;
 
 typedef union{

@@ -1151,11 +1151,14 @@ void printTokenList(char *sourceFile){
 	Lexical_Unit* lu;
 	lu = getNextToken_NoError(&fp);
 	int i = 1;
+    printf("\tLine\t\t\t\tLexeme \t\t\t\tToken Type\n");
+    printf("######################################################################################\n\n");
 	while(lu!=NULL){
-        printf("Line: %-3d\tLexeme: %22s\t\tToken Type: %20s\n",lu->line_no, lu->lexeme, tokenTypeMap[lu->token]);
+        printf("\t  %-3d%40s\t\t%20s\n",lu->line_no, lu->lexeme, tokenTypeMap[lu->token]);
 		lu = getNextToken_NoError(&fp);
 		i++;
 	}
+    printf("\n");
 	if(fp!=NULL)
 		fclose(fp);	
 }

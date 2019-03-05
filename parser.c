@@ -207,8 +207,6 @@ Grammar* loadGrammar(char* inputFile){
 					ch = fgetc(input);
 				}
                 terminalSymbol[i] = '\0';
-                
-				// terminalSymbol[i] = '\0';
 				SymbolNode* symbolNode = makeSymbolNode(find(terminalSymbol,true), true);
 
 				//Adding Symbol to the list
@@ -348,8 +346,6 @@ FirstAndFollow* getFirstAndFollowSets(Grammar* grammar){
             ffSets->first[i][j] = false;
             ffSets->follow[i][j] = false;
         }
-        // memset(ffSets->first[i],0,sizeof(ffSets->first[i]));
-		// memset(ffSets->follow[i],0,sizeof(ffSets->follow[i]));		
 	}
 
 	for(int i=0; i < NON_TERMINAL_COUNT; ++i){
@@ -582,11 +578,8 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
 		return NULL;
 	}
 
-	printf("\n\n------------------------------LEXER INITIALIZED--------------------------\n\n");
-
 	//Making Start symbol as the root of parse tree
     ParseTree tree = makeNode(false,program,NULL);
-	printf("\n\n------------------------------TREE INITIALIZED---------------------------\n\n");
 
 	//Initializing Stack
 	Stack* stack = initializeStack();
@@ -596,10 +589,6 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
 
 	push(stack,bottomMarker);
 	push(stack,tree);
-
-	printf("\n\n------------------------------STACK INITIALIZED--------------------------\n\n");
-
-	printf("\n\nStart obtaining tokens from lexer and parse them\n\n");
 
 	Token_type lookahead;
 
@@ -620,12 +609,11 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
 
 			//If input consumed
 			if(bottomOfStack(stack) && !hasError){
-				printf("\n\n---------------------STACK EMPTY AND INPUT CONSUMED------------------------\n\n");
-				printf("\n\n------Input source code is syntactically CORRECT - PARSING SUCCESSFUL-----------------\n\n");
+				printf("\n\n########## Source code is syntactically CORRECT ##########\n\n");
 			}
 			else{
 				*parseErrors = 1;
-				printf("\n\n------Input source code is syntactically WRONG - PARSING NOT SUCCESSFUL---------------\n\n");
+				printf("\n\n########## Source code is syntactically WRONG ##########\n\n");
 			}
 			break;
 		}
@@ -653,8 +641,7 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
 		//If top of the stack is $ and input is still left
 		if(bottomOfStack(stack)){
 			*parseErrors = 1;
-			printf("\n\nUnexpected tokens at the end - Stack empty but program still left\n\n");
-			printf("\n\n------Input source code is syntactically WRONG - PARSING NOT SUCCESSFUL---------------\n\n");
+			printf("\n\n########## Source code is syntactically WRONG ##########\n\n");
 			break;
 		}
 
@@ -755,12 +742,12 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
 
 void printParseTree(ParseTree tree, char* fname){
 	FILE* fp1 = fopen(fname,"w");
-	fprintf(fp1,"\n------------------------------------------------------Printing Parse Tree On the Console-----------------------------------------------\n\n");
-	fprintf(fp1,"%-25s %-10s %-15s %-15s %-30s %-5s %s\n\n\n", "LEXEME","LINE","TOKEN","VALUE","PARENT","LEAF","NODE");
+	fprintf(fp1,"\n######################################### Parse Tree #########################################\n\n");
+	fprintf(fp1,"%-25s %-10s %-15s %-15s %-30s %-5s %s\n\n\n", "Lexeme","LineNo","TokenName","ValueIfNumber","ParentNodeSymbol","IsLeafNode","NodeSymbol");
 
 	printParseTree_util(tree,&fp1);
 
-	fprintf(fp1,"\n------------------------------------------------------Parse Tree Printed On the Console-----------------------------------------------\n\n");
+	fprintf(fp1,"\n######################################### End Of Parse Tree #########################################\n\n");
     fclose(fp1);
 }
 
@@ -769,10 +756,10 @@ void printParseTree_util(TreeNode* node, FILE** fp1){
 	if(node == NULL){
 		return;
 	}
-	char* empty = "****";
-	char* no = "no";
-	char* yes = "yes";
-	char* root = "ROOT";
+	char* empty = "----";
+	char* no = "No";
+	char* yes = "Yes";
+	char* root = "Root";
 
 	Children* children = node->children;
 
@@ -802,7 +789,7 @@ void printParseTree_util(TreeNode* node, FILE** fp1){
 
 //This function prints the stored info at one node of a tree
 void printNode(FILE** fp1, TreeNode* node, bool isLeaf, char* empty, char* no, char* yes, char* root){
-	char* error = "(ERROR)" ;
+	char* error = "<Error>" ;
 	//Leaf Node
 	if(isLeaf){	
 		//If leaf node is a non-terminal (in-case of incomplete trees) -- ERROR CASE
@@ -845,33 +832,5 @@ void printNode(FILE** fp1, TreeNode* node, bool isLeaf, char* empty, char* no, c
 		else{
 			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,nonTerminalMap[node->parent->content->type.nonterm],no,nonTerminalMap[node->content->type.nonterm]);
 		}
-	}
-}
-
-
-
-/************************************************* EXTRA FUNCTIONS (Used for Debugging during parsing) ****************************************************/
-
-void printTopOfStack(TreeNode* treeNode){
-	printf("TOP OF STACK: ");
-	if(treeNode->content->isTerminal){
-		printf("%s\n", terminalMap[treeNode->content->type.term]);
-		
-	}
-	else{
-		printf("<%s>\n", nonTerminalMap[treeNode->content->type.nonterm]);
-	}
-}
-
-
-void printChildren(Children* children){
-	TreeNode* temp = children->head;
-	while(temp!=NULL){
-		if(temp->content->isTerminal)
-			printf("%s ",terminalMap[temp->content->type.term]);
-		else{
-			printf("<%s> ",nonTerminalMap[temp->content->type.nonterm]);
-		}
-		temp = temp->next;
 	}
 }

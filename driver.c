@@ -16,19 +16,11 @@ int main(int argc, char* argv[]){
 
     Grammar *g = loadGrammar("grammar.txt");
     printf("> Grammar loaded.\n");
-    // printGrammar(g);
-    
-    // if(argc > 1){
-    //     removeComments(argv[1],"out.txt");
-    //     printTokenList(argv[1]);
-    // }
     FirstAndFollow* ff = getFirstAndFollowSets(g);
     printf("> First and follow sets computed.\n");
-    // printFirstAndFollow(ff);
     ParsingTable pt = makeNewParseTable();
     createParseTable(g, ff, pt);
     printf("> Parse table created.\n\n");
-    // printParsingTable(pt);
     printf("********************************\n\n");
     int loop = 1, errors;
     ParseTree tree;
@@ -48,27 +40,22 @@ int main(int argc, char* argv[]){
                 loop = 0;
                 break;
             case 1:
-                printf("\n>> Removing comments.\n");
+                printf("\n>> Removing comments.\n********************************\n\n");
                 removeComments(argv[1]);
                 break;
             case 2:
-                printf("\n>> Printing token list.\n");
+                printf("\n>> Printing token list.\n********************************\n\n");
                 printTokenList(argv[1]);
                 break;
             case 3:
                 tree = parseInputSourceCode(argv[1],pt,ff,&errors);
                 printParseTree(tree, argv[2]);
-                // printf("\n>>Printing parsing table.\n");
-                // printParsingTable(pt);
                 break;
             case 4:
                 printf("\n>>Beginning timing.\n");
-                
                 clock_t start_time, end_time;
                 double total_CPU_time, total_CPU_time_in_seconds;
                 start_time = clock();
-
-                // invoke your lexer and parser here
                 Grammar *g2 = loadGrammar("grammar.txt");
                 printf("> Grammar loaded.\n");
                 FirstAndFollow* ff2 = getFirstAndFollowSets(g2);
@@ -76,22 +63,15 @@ int main(int argc, char* argv[]){
                 ParsingTable pt2 = makeNewParseTable();
                 createParseTable(g2, ff2, pt2);
                 printf("> Parse table created.\n\n");
-                // invoke parse tree fn here
-
+                tree = parseInputSourceCode(argv[1],pt,ff,&errors);
                 end_time = clock();
                 total_CPU_time  =  (double) (end_time - start_time);
                 total_CPU_time_in_seconds =   total_CPU_time / CLOCKS_PER_SEC;
-
-                printf("Total time taken = %f cycles = %f seconds\n", total_CPU_time, total_CPU_time_in_seconds);
+                printf("Total time taken = %f cycles = %f seconds\n\n", total_CPU_time, total_CPU_time_in_seconds);
                 break;
-
-                // Print both total_CPU_time and total_CPU_time_in_seconds 
-
             default:
                 printf("Invalid argument, please try again.\n");
-
         }
-
     }
     return 0;
 }

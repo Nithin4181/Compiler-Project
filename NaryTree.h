@@ -1,10 +1,10 @@
 /*
 Group No: 26
 Authors:
-Naveen Unnikrishnan - 2016A7PS0111P
-Adithya Mamallan - 2016A7PS0028P
-Nithin Myppan Benny - 2016A7PS0014P
-Swarup N - 2016A7PS0080P
+    Nithin Benny Myppan - 2016A7PS0014P
+    Adhitya Mamallan    - 2016A7PS0028P
+    Swarup N            - 2016A7PS0080P
+    Naveen Unnikrishnan - 2016A7PS0111P
 */
 #ifndef _NARYTREE_H
 #define _NARYTREE_H
@@ -28,20 +28,15 @@ typedef struct _linkedList{
 }Children;
 
 typedef struct _treeNode{
-	struct _treeNode* next; // The node itself is a part of some linked list
-
+	struct _treeNode* next; // The node itself is a part of linked list of siblings
 	NodeContent* content;
-	Lexical_Unit* lu;       // If it's a leaf node
-
-	//Linked list of Children
-	Children* children;	
-
+	Lexical_Unit* lu;       // Only for leaf nodes
+	Children* children;		//Linked list of Children
 	struct _treeNode* parent; //Pointer to parent node
 	int ruleNo;
 }TreeNode;
 
 typedef TreeNode* ParseTree;
-
 
 Children* initializeChildren();
 

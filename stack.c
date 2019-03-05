@@ -1,14 +1,17 @@
 /*
 Group No: 26
 Authors:
-Naveen Unnikrishnan - 2016A7PS0111P
-Adithya Mamallan - 2016A7PS0028P
-Nithin Myppan Benny - 2016A7PS0014P
-Swarup N - 2016A7PS0080P
+    Nithin Benny Myppan - 2016A7PS0014P
+    Adhitya Mamallan    - 2016A7PS0028P
+    Swarup N            - 2016A7PS0080P
+    Naveen Unnikrishnan - 2016A7PS0111P
 */
 #include "stack.h"
 
 Stack* initializeStack(){
+    /* Description: Initialize stack */
+    /* Arguments: void */
+    /* Return Type: Pointer to created empty stack */    	
 	Stack* stack = (Stack*)malloc(sizeof(Stack));
 	stack->size=0;
 	stack->head = NULL;
@@ -16,6 +19,9 @@ Stack* initializeStack(){
 }
 
 StackNode* createStackNode(TreeNode* treeNode){
+    /* Description: Wrap node of parse tree into a stack node */
+    /* Arguments: Node of parse tree */
+    /* Return Type: Stack node */    	
 	StackNode* node = (StackNode*)malloc(sizeof(StackNode));	
 	node->parseTreeNode = treeNode;
 	node->next = NULL;
@@ -23,6 +29,9 @@ StackNode* createStackNode(TreeNode* treeNode){
 }
 
 void push(Stack* stack, TreeNode* treeNode){
+    /* Description: Push parse tree node to stack */
+    /* Arguments: Pointers to stack and node to be pushed */
+    /* Return Type: void */    	
 	StackNode* node = createStackNode(treeNode);
 	node->next = stack->head;
 	stack->head = node; 
@@ -30,6 +39,9 @@ void push(Stack* stack, TreeNode* treeNode){
 }
 
 StackNode* pop(Stack* stack){
+    /* Description: Pop out a node from the top of the stack */
+    /* Arguments: Pointer to stack */
+    /* Return Type: Popped out node */    	
 	if(stack->size == 0){
 		printf("Stack is Empty\n");
 		return NULL;
@@ -43,6 +55,9 @@ StackNode* pop(Stack* stack){
 }
 
 StackNode* top(Stack* stack){
+    /* Description: Return node at the top of the stack */
+    /* Arguments: Pointer to stack */
+    /* Return Type: Pointer to node at the top of stack */    	
 	if(stack->size == 0){
 		printf("Stack is Empty\n");
 		return NULL;
@@ -53,7 +68,9 @@ StackNode* top(Stack* stack){
 }
 
 void pushChildrenToStack(Stack* stack, TreeNode* treeNode){
-    // Push children to stack in reverse order
+    /* Description: Push the children of a parse tree node to the stack in reverse order */
+    /* Arguments: Pointers to the stack and node of parse tree */
+    /* Return Type: void */    	
 	Children* children = treeNode->children;
 	TreeNode* temp = children->head;
 
@@ -82,8 +99,10 @@ void pushChildrenToStack(Stack* stack, TreeNode* treeNode){
 	stack->size += treeNode->children->siblingCount;
 }
 
-//Whether $ is on the top of the stack or not
 bool bottomOfStack(Stack* stack){
+    /* Description: Check if all terminals/non-terminals have been popped out, i.e. $ is at the bottom of stack */
+    /* Arguments: Pointer to stack */
+    /* Return Type: boolean value */    	
 	if(stack->size == 1){
 		NodeContent* content = stack->head->parseTreeNode->content;
 		if(content->isTerminal && content->type.term == DOLLAR)

@@ -1,10 +1,10 @@
 /*
 Group No: 26
 Authors:
-Naveen Unnikrishnan - 2016A7PS0111P
-Adithya Mamallan - 2016A7PS0028P
-Nithin Myppan Benny - 2016A7PS0014P
-Swarup N - 2016A7PS0080P
+    Nithin Benny Myppan - 2016A7PS0014P
+    Adhitya Mamallan    - 2016A7PS0028P
+    Swarup N            - 2016A7PS0080P
+    Naveen Unnikrishnan - 2016A7PS0111P
 */
 #ifndef _LEXER_DEF_H
 #define _LEXER_DEF_H
@@ -12,7 +12,7 @@ Swarup N - 2016A7PS0080P
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef enum{
+typedef enum{           // Tokens (terminal symbols) in the grammar
     TK_ASSIGNOP,
     TK_COMMENT,
     TK_FIELDID,
@@ -71,16 +71,16 @@ typedef enum{
     DOLLAR                  // Bottom of stack
 }Token_type;
 
-typedef union{
+typedef union{              // Union storing value stored in variable (either integer or real number)
     int integer;
     float real;
 }Val;
 
-typedef struct lexical_unit{
-    Token_type token;
-    int line_no;
-    char* lexeme;
-    Val *val;
+typedef struct lexical_unit{    // Lexical unit (tokenInfo) returned by the lexer
+    Token_type token; // Token
+    int line_no;      // Line number
+    char* lexeme;     // Lexeme
+    Val *val;         // Value stored (only applicable for TK_NUM and TK_RNUM)
 }Lexical_Unit;
 
 #endif

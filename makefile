@@ -1,3 +1,10 @@
+# Group No: 26
+# Authors:
+#     Nithin Benny Myppan - 2016A7PS0014P
+#     Adhitya Mamallan    - 2016A7PS0028P
+#     Swarup N            - 2016A7PS0080P
+#     Naveen Unnikrishnan - 2016A7PS0111P
+
 driver:	driver.o lexer.o lookup.o parser.o NaryTree.o stack.o
 	gcc-5 -g -o stage1exe driver.o lexer.o lookup.o parser.o NaryTree.o stack.o
 
@@ -24,3 +31,4 @@ clean:
 	rm -f exe
 	rm -f out*
 	rm -f *.out
+	rm -f stage1exe

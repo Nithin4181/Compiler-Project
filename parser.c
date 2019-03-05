@@ -1,10 +1,10 @@
 /*
 Group No: 26
 Authors:
-Naveen Unnikrishnan - 2016A7PS0111P
-Adithya Mamallan - 2016A7PS0028P
-Nithin Myppan Benny - 2016A7PS0014P
-Swarup N - 2016A7PS0080P
+    Nithin Benny Myppan - 2016A7PS0014P
+    Adhitya Mamallan    - 2016A7PS0028P
+    Swarup N            - 2016A7PS0080P
+    Naveen Unnikrishnan - 2016A7PS0111P
 */
 #include <string.h>
 #include "parser.h"
@@ -277,18 +277,16 @@ SymbolNode* makeSymbolNode(int index, bool isTerminal){
 	return symbolNode;
 }
 
-int find(char* str, bool isTerminal){       // TODO
-    /* Description: Make linked list node from terminal/non-terminal details */
-    /* Arguments: Enum index of terminal/non-terminal, boolean specifiying if terminal or non-terminal */
-    /* Return Type: Pointer to linked list node */    	
-	//Terminal
+int find(char* str, bool isTerminal){
+    /* Description: Get enum index from terminal/non-terminal map */
+    /* Arguments: Terminal/non-terminal string and boolean specifying whether terminal or non-terminal */
+    /* Return Type: Enum value */    	
 	if(isTerminal){
 		for(int i=0;i<TERMINAL_COUNT;i++){
 			if(strcmp(str,terminalMap[i])==0)
 				return i;
 		}
 	}
-	//Non terminal
 	else{
 		for(int i=0;i<NON_TERMINAL_COUNT;i++){
 			if(strcmp(str,nonTerminalMap[i])==0)
@@ -299,9 +297,10 @@ int find(char* str, bool isTerminal){       // TODO
 
 
 SymbolNode* addToRule(SymbolList* list, SymbolNode* symbolNode, SymbolNode* currentNode){
-	
-	//If initially the list is empty
-	if(currentNode==NULL){
+    /* Description: Adds terminal/non-terminal to the rule linked list */
+    /* Arguments: Rule linked list, node to be added, current node */
+    /* Return Type: Updated current node pointer */    	    
+	if(currentNode==NULL){                  //  List is empty
 		symbolNode->next = list->head;
 		list->head = symbolNode;
 		currentNode = list->head;
@@ -310,13 +309,14 @@ SymbolNode* addToRule(SymbolList* list, SymbolNode* symbolNode, SymbolNode* curr
 		currentNode->next = symbolNode;
 		currentNode = currentNode->next;
 	}
-
 	list->length++;
-
 	return currentNode;
 }
 
 void printGrammar(Grammar* grammar){
+    /* Description: Prints the grammar stored in the grammar data structure */
+    /* Arguments: Grammar data structure */
+    /* Return Type: Void */    	    
     printf("\n\nGrammar:\n\n\n");
 	for(int i=0;i<NON_TERMINAL_COUNT;i++){
         printf("%d.  <%s> ===> ",(i+1), nonTerminalMap[i]);
@@ -350,7 +350,9 @@ void printGrammar(Grammar* grammar){
 }
 
 FirstAndFollow* getFirstAndFollowSets(Grammar* grammar){
-
+    /* Description: Compute first and follow sets for the given grammar */
+    /* Arguments: Grammar stored in grammar structure */
+    /* Return Type: Pointer to first and follow set structure */    	    
 	FirstAndFollow* ffSets = (FirstAndFollow*)malloc(sizeof(FirstAndFollow));
 
 	ffSets->first = (bool**)malloc(NON_TERMINAL_COUNT*sizeof(bool*));
@@ -374,6 +376,9 @@ FirstAndFollow* getFirstAndFollowSets(Grammar* grammar){
 }
 
 void computeFirstSet(Grammar* grammar, NonTerminal nonTerminal, bool** first){
+    /* Description: Computes for given non-terminal from given grammar */
+    /* Arguments: Grammar, non-terminal, and first set table */
+    /* Return Type: void */    	        
 	Rules* rules = grammar->rules[nonTerminal];
 	Rule* temp = rules->head;
 	for(int j = 0;j< rules->ruleCount;j++){
@@ -405,14 +410,20 @@ void computeFirstSet(Grammar* grammar, NonTerminal nonTerminal, bool** first){
 }
 
 void computeFollowSet(Grammar* grammar, FirstAndFollow* sets){
+    /* Description: Compute follow set for given grammar */
+    /* Arguments: Grammar and first and follow set structure */
+    /* Return Type: void */    	        
 	addToSet(sets->follow[program],DOLLAR);
 	bool hasChanged = true;
-	while(hasChanged){
+	while(hasChanged){          // Repeat until follow set remains unchanged
 		hasChanged = computeFollowUtil(grammar,sets->first,sets->follow);
 	}
 }
 
 bool computeFollowUtil(Grammar* grammar, bool** first, bool** follow){
+    /* Description: Do one pass for follow set computation */
+    /* Arguments: Grammar, first set table, and follow set table */
+    /* Return Type: boolean specifying if follow set changed in this pass */
     bool hasChanged = false;
 	for(int i=0; i<NON_TERMINAL_COUNT; ++i){
 		Rules* rules = grammar->rules[i];
@@ -453,10 +464,16 @@ bool computeFollowUtil(Grammar* grammar, bool** first, bool** follow){
 }
 
 void addToSet(bool* set, int index){
+    /* Description: Add terminal at index in the enum to the set */
+    /* Arguments: The set (one row of first/follow set table) and index of terminal */
+    /* Return Type: void */    	        
     set[index] = true;
 }
 
 bool setUnion(bool* a, bool* b){
+    /* Description: Union of two sets */
+    /* Arguments: Two sets */
+    /* Return Type: boolean specifying if the first set changed */
     bool hasChanged = false;
     for(int i = 0; i < TERMINAL_COUNT; ++i){
         if(i == EPS)
@@ -470,6 +487,9 @@ bool setUnion(bool* a, bool* b){
 }
 
 void printFirstAndFollow(FirstAndFollow* sets){
+    /* Description: Print first and follow sets */
+    /* Arguments: First and follow set structure */
+    /* Return Type: void */    	        
 	printf("\n\nFirst Set:\n\n");
 	for(int i=0; i < NON_TERMINAL_COUNT; ++i){
 		printf("%d. %s => ",(i+1),nonTerminalMap[i]);
@@ -483,6 +503,9 @@ void printFirstAndFollow(FirstAndFollow* sets){
 }
 
 void printSet(bool* set){
+    /* Description: Print set */
+    /* Arguments: Set to be printed */
+    /* Return Type: void */
 	printf("{ ");
 	for(int i=0;i< TERMINAL_COUNT; ++i){
 		if(set[i]){
@@ -493,6 +516,9 @@ void printSet(bool* set){
 }
 
 ParsingTable makeNewParseTable(){
+    /* Description: Make new empty parse table */
+    /* Arguments: void */
+    /* Return Type: ParsingTable */    
     ParsingTable pt = (ParsingTable)malloc(sizeof(Rule**)*NON_TERMINAL_COUNT);  // PasingTable is a 2D array of pointers to grammar rules
     for (int i = 0; i < NON_TERMINAL_COUNT; ++i) 
          pt[i] = (Rule**)malloc(sizeof(Rule*)*TERMINAL_COUNT); 
@@ -503,6 +529,9 @@ ParsingTable makeNewParseTable(){
 }
 
 void createParseTable(Grammar* grammar, FirstAndFollow* sets, ParsingTable table){
+    /* Description: Construct parse table from grammar and first and follow sets */
+    /* Arguments: Grammar, first and follow set structure, and parsing table */
+    /* Return Type: void */    
 	for(int i = 0; i < NON_TERMINAL_COUNT; ++i){
 
 		Rules* rules = grammar->rules[i];
@@ -570,6 +599,9 @@ void createParseTable(Grammar* grammar, FirstAndFollow* sets, ParsingTable table
 }
 
 void printParsingTable(ParsingTable table){
+    /* Description: Prints parsing table */
+    /* Arguments: Parsing table */
+    /* Return Type: void */    
 	printf("\n\nPrinting Parsing Table:\n\n");
 	for(int i=0;i<NON_TERMINAL_COUNT;i++){
 		printf("%2d. %25s : ",(i+1),nonTerminalMap[i]);
@@ -587,14 +619,16 @@ void printParsingTable(ParsingTable table){
 }
 
 ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAndFollow* ff, int* parseErrors){
-	//Initialize_lexer
-	FILE* fp = lexer_initialisation(testcaseFile);
+    /* Description: Parse source code from file using parse table and first-follow sets and construct parse tree */
+    /* Arguments: Source code file name, parsing table, first and follow sets, and integer to detect parse errors */
+    /* Return Type: Parse tree */    
 
+    printf("\n");
+	FILE* fp = lexer_initialisation(testcaseFile);  	//Initialize_lexer
 	if(fp == NULL){
 		printf("\nFile not opened for parsing\n");
 		return NULL;
 	}
-
 	//Making Start symbol as the root of parse tree
     ParseTree tree = makeNode(false,program,NULL);
 
@@ -756,8 +790,10 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
 	return tree;
 }
 
-
 void printParseTree(ParseTree tree, char* fname){
+    /* Description: Print parse tree to file */
+    /* Arguments: Parse tree and output file name */
+    /* Return Type: void */        
 	FILE* fp1 = fopen(fname,"w");
 	fprintf(fp1,"\n######################################### Parse Tree #########################################\n\n");
 	fprintf(fp1,"%-25s %-10s %-15s %-15s %-30s %-5s %s\n\n\n", "Lexeme","LineNo","TokenName","ValueIfNumber","ParentNodeSymbol","IsLeafNode","NodeSymbol");
@@ -770,6 +806,9 @@ void printParseTree(ParseTree tree, char* fname){
 
 
 void printParseTree_util(TreeNode* node, FILE** fp1){
+    /* Description: Utility function for printing parse tree to file */
+    /* Arguments: Node of parse tree, file pointer to output file */
+    /* Return Type: void */        
 	if(node == NULL){
 		return;
 	}
@@ -804,8 +843,10 @@ void printParseTree_util(TreeNode* node, FILE** fp1){
 	}
 }
 
-//This function prints the stored info at one node of a tree
 void printNode(FILE** fp1, TreeNode* node, bool isLeaf, char* empty, char* no, char* yes, char* root){
+    /* Description: Print information about one node of parse tree into file */
+    /* Arguments: Output file pointer, node of tree, details of node */
+    /* Return Type: void */    
 	char* error = "<Error>" ;
 	//Leaf Node
 	if(isLeaf){	

@@ -1,10 +1,10 @@
 /*
 Group No: 26
 Authors:
-Naveen Unnikrishnan - 2016A7PS0111P
-Adithya Mamallan - 2016A7PS0028P
-Nithin Myppan Benny - 2016A7PS0014P
-Swarup N - 2016A7PS0080P
+    Nithin Benny Myppan - 2016A7PS0014P
+    Adhitya Mamallan    - 2016A7PS0028P
+    Swarup N            - 2016A7PS0080P
+    Naveen Unnikrishnan - 2016A7PS0111P
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +14,9 @@ Swarup N - 2016A7PS0080P
 #include "NaryTree.h"
 
 Children* initializeChildren(){
+    /* Description: Initializes children structure */
+    /* Arguments: void */
+    /* Return Type: Children */	
 	Children* children = (Children*)malloc(sizeof(Children));
 	children->head = NULL;
 	children->siblingCount = 0;
@@ -21,6 +24,9 @@ Children* initializeChildren(){
 }
 
 TreeNode* makeNode(bool isTerminal,	int index, TreeNode* parent){
+    /* Description: Create n-ary tree node with given values */
+    /* Arguments: bool to check terminal, enum value of terminal/non-terminal, and parent node */
+    /* Return Type: Newly created tree node */	
 	TreeNode* node = (TreeNode*)malloc(sizeof(TreeNode));
 	node->children = NULL;
 	node->lu = NULL;
@@ -42,6 +48,9 @@ TreeNode* makeNode(bool isTerminal,	int index, TreeNode* parent){
 }
 
 void addChildren(TreeNode* node, Rule* rule){
+    /* Description: Adds children to the tree based on grammar rule used */
+    /* Arguments: Tree node pointer and rule to be used */
+    /* Return Type: void */	
 	node->ruleNo = rule->ruleNo;
 	Children* children = initializeChildren();
     TreeNode* temp = children->head;

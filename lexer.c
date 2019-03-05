@@ -67,7 +67,7 @@ char* tokenTypeMap[] = {        // To print token type returned
 };
 
 #define SIZE_BUFFER 1024        // Size of input buffer used to read source code
-#define LEXEME_SIZE 40
+#define LEXEME_SIZE 200
 #define SLOT_COUNT 11
 
 char *previous_buffer;     
@@ -87,7 +87,7 @@ FILE *getStream(FILE *fp){      // Get input chunk from file
     previous_buffer = current_buffer;
     current_buffer = temp;
 
-    memset(current_buffer, 0 , sizeof(current_buffer));
+    memset(current_buffer, 0 , sizeof(char)*(SIZE_BUFFER+1));
 
     if(feof(fp)){
 		fclose(fp);
@@ -116,8 +116,8 @@ FILE *lexer_initialisation(char *sourceFile){        // Initialize the lexer
     current_buffer=(char*)malloc(sizeof(char)*(SIZE_BUFFER+1));
     previous_buffer=(char*)malloc(sizeof(char)*(SIZE_BUFFER+1));
 
-    memset(current_buffer, 0, sizeof(current_buffer));
-	memset(previous_buffer, 0, sizeof(previous_buffer));
+    memset(current_buffer, 0, sizeof(char)*(SIZE_BUFFER+1));
+	memset(previous_buffer, 0, sizeof(char)*(SIZE_BUFFER+1));
 
     line_no=1;
     current_position=0;
@@ -161,7 +161,7 @@ Lexical_Unit* getNextTokenUtil(FILE **fp, bool printErrors){   // Return the nex
     Val* val;
 
     char *lexeme = (char*)malloc(LEXEME_SIZE*sizeof(char));
-    memset(lexeme, 0, sizeof(lexeme));
+    memset(lexeme, 0, LEXEME_SIZE*sizeof(char));
 
     int lexeme_position = 0;
 
@@ -1084,8 +1084,8 @@ void removeComments(char *testcaseFile){
 	current_buffer = (char*)malloc(sizeof(char)*(SIZE_BUFFER+1));
 	previous_buffer = (char*)malloc(sizeof(char)*(SIZE_BUFFER+1));
 	
-	memset(current_buffer, 0, sizeof(current_buffer));
-	memset(previous_buffer, 0, sizeof(previous_buffer));
+	memset(current_buffer, 0, sizeof(char)*(SIZE_BUFFER+1));
+	memset(previous_buffer, 0, sizeof(char)*(SIZE_BUFFER+1));
 
 	FILE* input = fopen(testcaseFile, "r");
     // FILE* output = fopen(cleanFile, "w");
@@ -1142,7 +1142,6 @@ void removeComments(char *testcaseFile){
 	//Input file will always be closed by getStream function
 	if(input!=NULL)
 		fclose(input);
-    // fclose(output);	
     free(current_buffer);
     free(previous_buffer);
 }

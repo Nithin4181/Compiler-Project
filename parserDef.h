@@ -7,7 +7,7 @@
 #define NON_TERMINAL_COUNT 51  // TODO
 #define TERMINAL_COUNT 56      // 54 token types + eps + $
 
-#define SYMBOL_SIZE 20
+#define SYMBOL_SIZE 25
 
 // #define BIT_VECTOR_SIZE (sizeof(int)-1+ TOTAL_TERMINALS)/sizeof(int)
 

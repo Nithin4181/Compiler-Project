@@ -344,8 +344,12 @@ FirstAndFollow* getFirstAndFollowSets(Grammar* grammar){
 	for(int i=0; i<NON_TERMINAL_COUNT; ++i){
 		ffSets->first[i] = (bool*)malloc(TERMINAL_COUNT*sizeof(bool));
 		ffSets->follow[i] = (bool*)malloc(TERMINAL_COUNT*sizeof(bool));
-		memset(ffSets->first[i],0,sizeof(ffSets->first[i]));
-		memset(ffSets->follow[i],0,sizeof(ffSets->follow[i]));		
+		for(int j=0; j<TERMINAL_COUNT; ++j){
+            ffSets->first[i][j] = false;
+            ffSets->follow[i][j] = false;
+        }
+        // memset(ffSets->first[i],0,sizeof(ffSets->first[i]));
+		// memset(ffSets->follow[i],0,sizeof(ffSets->follow[i]));		
 	}
 
 	for(int i=0; i < NON_TERMINAL_COUNT; ++i){

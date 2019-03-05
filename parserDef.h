@@ -4,12 +4,10 @@
 #include <stdbool.h>
 #include "lexerDef.h"
 
-#define NON_TERMINAL_COUNT 51  // TODO
+#define NON_TERMINAL_COUNT 51  // Number of non-terminals
 #define TERMINAL_COUNT 56      // 54 token types + eps + $
 
 #define SYMBOL_SIZE 25
-
-// #define BIT_VECTOR_SIZE (sizeof(int)-1+ TOTAL_TERMINALS)/sizeof(int)
 
 typedef Token_type Terminal;
 

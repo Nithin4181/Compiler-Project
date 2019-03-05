@@ -7,7 +7,7 @@
 
 Grammar* loadGrammar(char* inputFile);
 
-SymbolNode* makeSymbolNode(int enum_int, int term_or_nonterm);
+SymbolNode* makeSymbolNode(int index, bool isTerminal);
 
 int find(char* str, bool isTerminal);
 

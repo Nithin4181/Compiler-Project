@@ -7,7 +7,7 @@
 
 #include "lexer.h"
 
-char* tokenTypeMap[] = {        // To print token type returned
+char* tokenTypeMap[] = {    // Maps enum values to corresponding token names.
     "TK_ASSIGNOP",
     "TK_COMMENT",
     "TK_FIELDID",
@@ -67,22 +67,26 @@ char* tokenTypeMap[] = {        // To print token type returned
 };
 
 #define SIZE_BUFFER 1024        // Size of input buffer used to read source code
-#define LEXEME_SIZE 200
-#define SLOT_COUNT 11
+#define LEXEME_SIZE 200         // Max size of lexeme
+#define SLOT_COUNT 11           // No. of slots for hashing
 
-char *previous_buffer;     
+char *previous_buffer;          // Previous buffer in twin buffer
 
-char *current_buffer;
+char *current_buffer;           // Currently used buffer in the twin buffer
 
-int line_no = 1;
+int line_no = 1;                // Current line number being read
 
-int current_position = 0;
+int current_position = 0;       // Current position in the buffer being read
 
-int end_file = 0;
+int end_file = 0;               // 1 => file end reached; 0 => file remaining to be read
 
-Lookup* lookupTable;
+Lookup* lookupTable;            // Lookup table for keywords
 
-FILE *getStream(FILE *fp){      // Get input chunk from file
+FILE *getStream(FILE *fp){
+    /*Description: Returns the position of the file after reading a input chunk
+    of size SIZE_BUFFER, till end of each line*/
+    /*Arguments: File pointer*/
+    /*Return Type: File pointer or NULL*/
     char *temp = previous_buffer;
     previous_buffer = current_buffer;
     current_buffer = temp;
@@ -105,14 +109,20 @@ FILE *getStream(FILE *fp){      // Get input chunk from file
     }
 }
 
-void addToken(Lexical_Unit* lu, Token_type type, char* lexeme, Val* value){ // Create token from given values
+void addToken(Lexical_Unit* lu, Token_type type, char* lexeme, Val* value){
+    /*Description: Initializes lexical unit with the given lexeme, token, and value*/
+    /*Arguments: Lexical_Unit pointer, Token_type enum, Char pointer, Val union */
+    /*Return Type: void*/
 	lu->line_no = line_no;
 	lu->token = type;
 	lu->lexeme = lexeme;
 	lu->val = value;
 }
 
-FILE *lexer_initialisation(char *sourceFile){        // Initialize the lexer
+FILE *lexer_initialisation(char *sourceFile){
+    /*Description: Initialize the Lexer*/
+    /*Arguments: Source code file name*/
+    /*Return Type: File pointer for reading source code*/  
     current_buffer=(char*)malloc(sizeof(char)*(SIZE_BUFFER+1));
     previous_buffer=(char*)malloc(sizeof(char)*(SIZE_BUFFER+1));
 
@@ -136,7 +146,10 @@ FILE *lexer_initialisation(char *sourceFile){        // Initialize the lexer
     return fp;
 }
 
-Lexical_Unit* getNextTokenUtil(FILE **fp, bool printErrors){   // Return the next token
+Lexical_Unit* getNextTokenUtil(FILE **fp, bool printErrors){
+    /*Description: Get the next lexical token*/
+    /*Arguments: Source code file pointer and a boolean used to decide whether or not to print lexical error messages*/
+    /*Return Type: Lexical_Unit pointer*/
     if(end_file==1){
         if(*fp != NULL)   fclose(*fp);
         free(current_buffer);
@@ -168,7 +181,6 @@ Lexical_Unit* getNextTokenUtil(FILE **fp, bool printErrors){   // Return the nex
     Node* node = NULL;
 
     while (1){
-        // printf("Current state = %d\tCharacter = %c\n",state,current_buffer[current_position]);
         switch (state){
             case 0:
                 if (current_buffer[current_position]=='\0'){
@@ -364,7 +376,6 @@ Lexical_Unit* getNextTokenUtil(FILE **fp, bool printErrors){   // Return the nex
                     ++current_position;
                 }
                 if(current_buffer[current_position] == '\n')    
-                    // printf("Next character to be read: newline\n");
                 break;
 
             case 3:
@@ -1073,14 +1084,23 @@ Lexical_Unit* getNextTokenUtil(FILE **fp, bool printErrors){   // Return the nex
 }
 
 inline Lexical_Unit* getNextToken(FILE** fp){
+    /*Description: Gets next token and print lexical errors*/
+    /*Arguments: Source file pointer*/
+    /*Return Type: Lexical_Unit pointer*/
     return getNextTokenUtil(fp, true);
 }
 
 inline Lexical_Unit* getNextToken_NoError(FILE** fp){
+    /*Description: Gets next token without printing lexical errors*/
+    /*Arguments: Source file pointer*/
+    /*Return Type: Lexical_Unit pointer*/
     return getNextTokenUtil(fp, false);
 }
 
 void removeComments(char *testcaseFile){
+    /* Description: Remove comments from the source code and output to console*/
+    /* Arguments: Char pointer*/
+    /* Return type: void */
 	current_buffer = (char*)malloc(sizeof(char)*(SIZE_BUFFER+1));
 	previous_buffer = (char*)malloc(sizeof(char)*(SIZE_BUFFER+1));
 	
@@ -1147,6 +1167,9 @@ void removeComments(char *testcaseFile){
 }
 
 void printTokenList(char *sourceFile){
+    /* Description: Print the token list from the source file */
+    /* Arguments: Source code file name */
+    /* Return type: void */
     FILE *fp = lexer_initialisation(sourceFile);
 	Lexical_Unit* lu;
 	lu = getNextToken_NoError(&fp);

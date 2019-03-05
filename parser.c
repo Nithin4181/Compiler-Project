@@ -2,7 +2,7 @@
 #include "parser.h"
 #include "lexer.h"
 
-char* terminalMap[] = {
+char* terminalMap[] = { // Maps enum values to corresponding terminal/token names.
     "TK_ASSIGNOP",
     "TK_COMMENT",
     "TK_FIELDID",
@@ -61,7 +61,7 @@ char* terminalMap[] = {
     "$"
 };
 
-char* nonTerminalMap[] = {
+char* nonTerminalMap[] = {  // Maps enum values to corresponding non-terminal names.
 	"program",
     "otherFunctions",
     "mainFunction",
@@ -116,6 +116,9 @@ char* nonTerminalMap[] = {
 };
 
 Grammar* loadGrammar(char* inputFile){
+    /* Description: Loads grammar from txt file */
+    /* Arguments: File name of grammar file */
+    /* Return Type: Pointer to grammar structure */
 	int ruleNo = 1;
     bool alternateRule = false;
 
@@ -156,13 +159,13 @@ Grammar* loadGrammar(char* inputFile){
                 nonTerminalSymbol[i++] = ch;
             }
             nonTerminalSymbol[i] = '\0';
-            //Load LHS of the rule -- the corresponding enum
+            //Load LHS of the rule
             nonTerm  =  find(nonTerminalSymbol,false);
         }
 
         alternateRule = false;
 
-		//Now look for RHS of the rule
+		//Look for RHS of the rule
         Rule* newRule = (Rule*)malloc(sizeof(Rule));
         newRule->next = NULL;
         newRule->symbols = NULL;
@@ -196,7 +199,7 @@ Grammar* loadGrammar(char* inputFile){
                     alternateRule = true;
                     break;
             }
-
+            // If it's a terminal
 			else if(ch >= 'A' && ch <= 'Z' || ch == '_' || ch == 'e'){   // e: eps
 				char* terminalSymbol = (char*)malloc(sizeof(char)*SYMBOL_SIZE);
 				int i = 0;
@@ -221,6 +224,7 @@ Grammar* loadGrammar(char* inputFile){
                     break;
                 }
 			}
+            // If it's a non-terminal
 			else if(ch == '<'){
 				char* nonTerminalSymbol = (char*)malloc(sizeof(char)*SYMBOL_SIZE);
 				int i = 0;
@@ -246,24 +250,29 @@ Grammar* loadGrammar(char* inputFile){
 	}
 } 
 
-SymbolNode* makeSymbolNode(int enum_int, int term_or_nonterm){
+SymbolNode* makeSymbolNode(int index, bool isTerminal){
+    /* Description: Make linked list node from terminal/non-terminal details */
+    /* Arguments: Enum index of terminal/non-terminal, boolean specifiying if terminal or non-terminal */
+    /* Return Type: Pointer to linked list node */    
 	SymbolNode* symbolNode = (SymbolNode*)malloc(sizeof(SymbolNode));
 	symbolNode->next=NULL;
 	Symbol symbol;
-	if(term_or_nonterm==0){
-		symbol.term = (Token_type)enum_int;
+	if(isTerminal==0){
+		symbol.term = (Token_type)index;
 	}
 	else{
-		symbol.nonterm = (NonTerminal)enum_int;
+		symbol.nonterm = (NonTerminal)index;
 	}
 	symbolNode->symbol = symbol;
-	symbolNode->isTerminal = term_or_nonterm;
+	symbolNode->isTerminal = isTerminal;
 
 	return symbolNode;
 }
 
-int find(char* str, bool isTerminal){
-	
+int find(char* str, bool isTerminal){       // TODO
+    /* Description: Make linked list node from terminal/non-terminal details */
+    /* Arguments: Enum index of terminal/non-terminal, boolean specifiying if terminal or non-terminal */
+    /* Return Type: Pointer to linked list node */    	
 	//Terminal
 	if(isTerminal){
 		for(int i=0;i<TERMINAL_COUNT;i++){

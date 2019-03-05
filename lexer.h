@@ -1,3 +1,11 @@
+/*
+Group No: 26
+Authors:
+Naveen Unnikrishnan - 2016A7PS0111P
+Adithya Mamallan - 2016A7PS0028P
+Nithin Myppan Benny - 2016A7PS0014P
+Swarup N - 2016A7PS0080P
+*/
 #ifndef _LEXER_H
 #define _LEXER_H
 

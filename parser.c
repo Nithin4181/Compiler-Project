@@ -380,32 +380,33 @@ void computeFirstSet(Grammar* grammar, NonTerminal nonTerminal, bool** first){
     /* Arguments: Grammar, non-terminal, and first set table */
     /* Return Type: void */    	        
 	Rules* rules = grammar->rules[nonTerminal];
-	Rule* temp = rules->head;
+	Rule* temp1 = rules->head;
 	for(int j = 0;j< rules->ruleCount;j++){
-		SymbolList* symbols = temp->symbols;
+		SymbolList* symbols = temp1->symbols;
 		SymbolNode* temp2 = symbols->head;
 		int k;
 		for(k=0; k < symbols->length; k++){
-			//If a terminal has occurred
-			if(temp2->isTerminal == true){
-				addToSet(first[nonTerminal],temp2->symbol.term);				
-				break;
-			}
-			else{
-                if(nonTerminal!=temp2->symbol.nonterm){
+			
+			if(temp2->isTerminal == false){
+				if(nonTerminal!=temp2->symbol.nonterm){
                     computeFirstSet(grammar, temp2->symbol.nonterm,first);
 				    setUnion(first[nonTerminal], first[temp2->symbol.nonterm]);
                 }
 				if(!first[temp2->symbol.nonterm][EPS]){
 					break;
 				}
+				
+			}
+			else{
+                addToSet(first[nonTerminal],temp2->symbol.term);				
+				break;
 			}			
 			temp2 = temp2->next;
 		}
-		if(k == symbols->length){
+		if(symbols->length == k){
 			addToSet(first[nonTerminal],EPS);
 		}
-		temp = temp->next;
+		temp1 = temp1->next;
 	}
 }
 
@@ -413,8 +414,8 @@ void computeFollowSet(Grammar* grammar, FirstAndFollow* sets){
     /* Description: Compute follow set for given grammar */
     /* Arguments: Grammar and first and follow set structure */
     /* Return Type: void */    	        
-	addToSet(sets->follow[program],DOLLAR);
 	bool hasChanged = true;
+	addToSet(sets->follow[program],DOLLAR);
 	while(hasChanged){          // Repeat until follow set remains unchanged
 		hasChanged = computeFollowUtil(grammar,sets->first,sets->follow);
 	}
@@ -427,26 +428,29 @@ bool computeFollowUtil(Grammar* grammar, bool** first, bool** follow){
     bool hasChanged = false;
 	for(int i=0; i<NON_TERMINAL_COUNT; ++i){
 		Rules* rules = grammar->rules[i];
-		Rule* temp = rules->head;
+		Rule* temp1 = rules->head;
 		for(int j = 0; j< rules->ruleCount; ++j){
-			SymbolList* symbols = temp->symbols;
+			SymbolList* symbols = temp1->symbols;
 			SymbolNode* temp2 = symbols->head;
 
 			for(int k = 0; k < symbols->length; ++k){
 				if(temp2->isTerminal == false){
 					SymbolNode* temp3 = temp2->next;
 					while(temp3 != NULL){
-						if(temp3->isTerminal == true){
+						if(temp3->isTerminal == false){
+							
+							hasChanged = hasChanged | setUnion(follow[temp2->symbol.nonterm],first[temp3->symbol.nonterm]);
+							if(!first[temp3->symbol.nonterm][EPS]){
+								break;
+							
+						}
+						else{
+							
 							if(!follow[temp2->symbol.nonterm][ temp3->symbol.term]){
 								hasChanged = true;
 							    addToSet(follow[temp2->symbol.nonterm], temp3->symbol.term);
                             }
 							break;
-						}
-						else{
-							hasChanged = hasChanged | setUnion(follow[temp2->symbol.nonterm],first[temp3->symbol.nonterm]);
-							if(!first[temp3->symbol.nonterm][EPS]){
-								break;
 							}
 						}
 						temp3 = temp3->next;						
@@ -457,7 +461,7 @@ bool computeFollowUtil(Grammar* grammar, bool** first, bool** follow){
 				}								
 				temp2 = temp2->next;
 			}
-			temp = temp->next;
+			temp1 = temp1->next;
 		}		
 	}
 	return hasChanged;
@@ -493,27 +497,28 @@ void printFirstAndFollow(FirstAndFollow* sets){
 	printf("\n\nFirst Set:\n\n");
 	for(int i=0; i < NON_TERMINAL_COUNT; ++i){
 		printf("%d. %s => ",(i+1),nonTerminalMap[i]);
-		printSet(sets->first[i]);
+		printf("( ");
+		for(int i=0;i< TERMINAL_COUNT; ++i){
+			if(sets->first[i]){
+				printf("%s ",terminalMap[i]);
+			}
+		}
+		printf(")\n");
 	}	
+	
 	printf("\n\nFollow Set:\n\n");
 	for(int i=0;i<NON_TERMINAL_COUNT;i++){
 		printf("%d. %s => ",(i+1),nonTerminalMap[i]);
-		printSet(sets->follow[i]);
+		printf("( ");
+		for(int i=0;i< TERMINAL_COUNT; ++i){
+			if(sets->follow[i]){
+				printf("%s ",terminalMap[i]);
+			}
+		}
+		printf(")\n");
 	}
 }
 
-void printSet(bool* set){
-    /* Description: Print set */
-    /* Arguments: Set to be printed */
-    /* Return Type: void */
-	printf("{ ");
-	for(int i=0;i< TERMINAL_COUNT; ++i){
-		if(set[i]){
-			printf("%s ",terminalMap[i]);
-		}
-	}
-	printf("}\n");
-}
 
 ParsingTable makeNewParseTable(){
     /* Description: Make new empty parse table */

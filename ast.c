@@ -167,3 +167,379 @@ void addReturnType(typeList *tl, Token_type type)
     tl->noSiblings+=1;
 
 }
+
+void makeAST_nodeTraversal(ParseTree pt){
+    int ruleNo=pt->ruleNo;
+
+    switch(ruleNo){
+        case  1  :
+
+            break;
+
+        case  2  :
+
+            break;
+
+        case  3  :
+
+            break;
+
+        case  4  :
+            pt->addr=NULL;
+            break;
+
+        case  5  :
+
+            break;
+
+        case  6  :
+            pt->addr=pt->children->head->addr;
+            break;
+
+        case  7  :
+            pt->addr=pt->children->head->addr;
+            break;
+
+        case  8  :
+            pt->addr=NULL;
+            break;
+
+        case  9  :
+
+            break;
+
+        case  10  :
+            pt->addr=pt->children->head->addr;
+            break;
+
+        case  11  :
+            pt->addr=pt->children->head->addr;
+            break;
+
+        case  12  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  13  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  14  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  15  :
+            pt->addr=pt->children->head->addr;
+            break;
+
+        case  16  :
+            pt->addr=NULL;
+            break;
+
+        case  17  :
+
+            break;
+
+        case  18  :
+
+            break;
+
+        case  19  :
+            pt->addr=NULL;
+            break;
+
+        case  20  :
+
+            break;
+
+        case  21  :
+
+            break;
+
+        case  22  :
+
+            break;
+
+        case  23  :
+
+            break;
+
+        case  24  :
+            pt->addr=NULL;
+            break;
+
+        case  25  :
+
+            break;
+
+        case  26  :
+            pt->addr=NULL;
+            break;
+
+        case  27  :
+
+            break;
+
+        case  28  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  29  :
+            pt->addr=NULL;
+            break;
+
+        case  30  :
+
+            break;
+
+        case  31  :
+            pt->addr=NULL;
+            break;
+
+        case  32  :
+            pt->addr=pt->children->head->addr;
+            break;
+
+        case  33  :
+            pt->addr=pt->children->head->addr;
+            break;
+
+        case  34  :
+            pt->addr=pt->children->head->addr;
+            break;
+
+        case  35  :
+            pt->addr=pt->children->head->addr;
+            break;
+
+        case  36  :
+            pt->addr=pt->children->head->addr;
+            break;
+
+        case  37  :
+
+            break;
+
+        case  38  :
+
+            break;
+
+        case  39  :
+            pt->addr=NULL;
+            break;
+
+        case  40  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  41  :
+
+            break;
+
+        case  42  :
+            pt->addr=pt->children->head->addr;
+            break;
+
+        case  43  :
+            pt->addr=NULL;
+            break;
+
+        case  44  :
+            pt->addr=pt->children->head->addr;
+            break;
+
+        case  45  :
+
+            break;
+
+        case  46  :
+
+            break;
+
+        case  47  :
+
+            break;
+
+        case  48  :
+            pt->addr=NULL;
+            break;
+
+        case  49  :
+
+            break;
+
+        case  50  :
+
+            break;
+
+        case  51  :
+
+            break;
+
+        case  52  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  53  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  54  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  55  :
+            pt->addr=NULL;
+            break;
+
+        case  56  :
+
+            break;
+
+        case  57  :
+
+            break;
+
+        case  58  :
+            
+            break;
+
+        case  59  :
+
+            break;
+
+        case  60  :
+
+            break;
+
+        case  61  :
+
+            break;
+
+        case  62  :
+            pt->addr=pt->children->head->addr;
+            break;
+
+        case  63  :
+            pt->addr=pt->children->head->addr;
+            break;
+
+        case  64  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  65  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  66  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  67  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  68  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  69  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  70  :
+
+            break;
+
+        case  71  :
+            pt->addr=NULL;
+            break;
+
+        case  72  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  73  :
+
+            break;
+
+        case  74  :
+
+            break;
+
+        case  75  :
+
+            break;
+
+        case  76  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  77  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  78  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  79  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  80  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  81  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  82  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  83  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  84  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  85  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  86  :
+            pt->addr=makeASTLeaf(pt->children->head->lu);
+            break;
+
+        case  87  :
+
+            break;
+
+        case  88  :
+            pt->addr=pt->children->head->addr;
+            break;
+
+        case  89  :
+            pt->addr=NULL;
+            break;
+
+        case  90  :
+
+            break;
+
+        case  91  :
+            pt->addr=pt->children->head->addr;
+            break;
+
+        case  92  :
+            pt->addr=NULL;
+            break;
+
+
+    }
+}

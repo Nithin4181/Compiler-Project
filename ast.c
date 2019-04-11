@@ -44,13 +44,12 @@ char* astNodeNameMap[] = {
     "ID_LIST"
 };
 
-<<<<<<< HEAD
 AST makeAST(ParseTree pt){
     if (pt==NULL)   return NULL;
 
     makeAST_postOrderTraversal(pt);
 
-    AST ast=(AST*)malloc(sizeof(AST));
+    AST ast=(AST)malloc(sizeof(ASTNode));
     ast=pt->addr;
 
 }
@@ -77,8 +76,19 @@ void makeAST_postOrderTraversal(ParseTree pt)
 }
 
 void addASTChildren(ASTChildren *ch,AST * ast){
+    if (ch->head==NULL)
+    {
+        ch->head=ast;
+        ch->tail=ast;
+    }
+    else
+    {
+        ch->tail->next=ast;
+        ch->tail=ch->tail->next;
+    }
+    ch->noSiblings+=1;
+}
     
-=======
 
 
 ASTNode* makeASTNode(astNodeName label, bool leaf, ASTNode* parent, ASTChildren* children, ASTNode* next, Lexical_Unit* lu){
@@ -100,6 +110,5 @@ ASTNode* makeASTNode(astNodeName label, bool leaf, ASTNode* parent, ASTChildren*
     node->value = NULL;
 
     return node;
->>>>>>> b1de2ff5381ed430b45a5c0807b3d91f613c3f25
 }
 

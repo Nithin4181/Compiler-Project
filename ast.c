@@ -44,3 +44,26 @@ char* astNodeNameMap[] = {
     "ID_LIST"
 };
 
+
+
+ASTNode* makeASTNode(astNodeName label, bool leaf, ASTNode* parent, ASTChildren* children, ASTNode* next, Lexical_Unit* lu){
+    ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode));
+    node->label = label;
+    node->leaf = leaf;
+    node->parent = parent;
+    node->children = children;
+    node->next = next;
+    node->lu = lu;
+
+    node->currentScope = NULL;
+    node->token = -1;
+    node->returnParameters = NULL;
+
+    if(node->leaf)
+        node->lineNo = node->lu->line_no;
+
+    node->value = NULL;
+
+    return node;
+}
+

@@ -84,15 +84,16 @@ ASTChildren* initializeASTChildren(){
 }
 
 void addASTChildren(ASTChildren *ch,AST * ast){
-    if (ch->head==NULL)
-    {
-        ch->head=ast;
-        ch->tail=ast;
-    }
-    else
+    if (ch->head!=NULL)
     {
         ch->tail->next=ast;
         ch->tail=ch->tail->next;
+        
+    }
+    else
+    {
+        ch->head=ast;
+        ch->tail=ast;
     }
     ch->noSiblings+=1;
 }
@@ -136,4 +137,33 @@ void addParentPointers(ASTNode* parent, ASTChildren* children){
         temp1 = temp1->next;
     }
     parent->lineNo = children->head->lineNo;
+}
+
+typeList * initializeTypeList()
+{
+    typeList * tl=(typeList*)malloc(sizeof(typeList));
+    tl->head=NULL;
+    tl->tail=NULL;
+    tl->noSiblings=0; 
+}
+
+void addReturnType(typeList *tl, Token_type type)
+{
+    typeListNode* new=(typeListNode*)malloc(sizeof(typeListNode));
+    new->next=NULL;
+    new->type=type;
+
+    if (tl->head!=NULL)
+    {
+        tl->tail->next=new;
+        tl->tail=tl->tail->next;
+        
+    }
+    else
+    {
+        tl->head=new;
+        tl->tail=new;
+    }
+    tl->noSiblings+=1;
+
 }

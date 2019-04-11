@@ -29,8 +29,10 @@ typedef struct _treeNode{
 	struct _treeNode* next;
 	NodeContent* content;
 	Lexical_Unit* lu;      
-	Children* children;		
+	Children* children;
 	struct _treeNode* parent;
+	struct astNode* addr;
+	struct astNode* inh_addr;	
 	int ruleNo;
 }TreeNode;
 

@@ -58,15 +58,27 @@ typedef struct astNode{
 	Lexical_Unit* lu; 
 
 	struct symTableTreeNode* currentScope;
+    struct ASTNode* extend;
 
 	Token_type token;
 
-	struct typeList* returnParameters;
+	struct typeList* returnTypes;
 
 	int lineNo;
 	Val* value;
 }ASTNode;
 
 typedef ASTNode* AST;
+
+typedef struct _typeList{
+    struct typeListNode* head;
+    struct typeListNode* tail;
+    int noSiblings;
+}typeList;
+
+typedef struct _typeListNode{
+    struct typeListNode* next;
+    Token_type type;
+}typeListNode;
 
 #endif

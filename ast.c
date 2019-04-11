@@ -75,10 +75,6 @@ void makeAST_postOrderTraversal(ParseTree pt)
     makeAST_nodeTraversal(pt);
 }
 
-
-
-
-
 ASTChildren* initializeASTChildren(){
     ASTChildren* children = (ASTChildren*)malloc(sizeof(ASTChildren));
     children->noSiblings = 0;
@@ -86,6 +82,7 @@ ASTChildren* initializeASTChildren(){
     children->tail = NULL;
     return children;
 }
+
 void addASTChildren(ASTChildren *ch,AST * ast){
     if (ch->head==NULL)
     {
@@ -111,7 +108,7 @@ ASTNode* makeASTNode(astNodeName label, bool leaf, ASTNode* parent, ASTChildren*
 
     node->currentScope = NULL;
     node->token = -1;
-    node->returnParameters = NULL;
+    node->returnTypes = NULL;
 
     if(node->leaf)
         node->lineNo = node->lu->line_no;
@@ -125,3 +122,18 @@ inline ASTNode* makeASTLeaf(Lexical_Unit* lu){
     return makeASTNode(-1,true,(ASTNode*)NULL,(ASTChildren*)NULL,(ASTNode*)NULL,lu);
 }
 
+void addParentPointers(ASTNode* parent, ASTChildren* children){
+    ASTNode* temp1 = children->head;
+    ASTNode* temp2;
+
+    while(temp1 != NULL){
+        temp1->parent = parent;
+        temp2 = temp1->extend;
+        while(temp2!=NULL){
+            temp2->parent = parent;
+            temp2 = temp2->extend;
+        }
+        temp1 = temp1->next;
+    }
+    parent->lineNo = children->head->lineNo;
+}

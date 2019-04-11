@@ -507,107 +507,99 @@ void printFirstAndFollow(FirstAndFollow* sets){
 
 
 ParsingTable makeNewParseTable(){
-    /* Description: Make new empty parse table */
+	/* Description: Make new empty parse table */
     /* Arguments: void */
-    /* Return Type: ParsingTable */    
-    ParsingTable pt = (ParsingTable)malloc(sizeof(Rule**)*NON_TERMINAL_COUNT);  // PasingTable is a 2D array of pointers to grammar rules
-    for (int i = 0; i < NON_TERMINAL_COUNT; ++i) 
-         pt[i] = (Rule**)malloc(sizeof(Rule*)*TERMINAL_COUNT); 
-    for(int i = 0; i < NON_TERMINAL_COUNT; ++i)
-        for(int j = 0; j < TERMINAL_COUNT; ++j)
-            pt[i][j] = NULL;
-    return pt;
+    /* Return Type: ParsingTable */   
+    ParsingTable table = (ParsingTable)malloc(sizeof(Rule**)*NON_TERMINAL_COUNT);  
+    for(int i=0; i<NON_TERMINAL_COUNT; ++i){
+         table[i] = (Rule**)malloc(sizeof(Rule*)*TERMINAL_COUNT);
+	}
+    for(int i=0; i<NON_TERMINAL_COUNT; ++i){
+        for(int j=0; j<TERMINAL_COUNT; ++j){
+            table[i][j] = NULL;
+		}
+	}
+    return table;
 }
 
 void createParseTable(Grammar* grammar, FirstAndFollow* sets, ParsingTable table){
-    /* Description: Construct parse table from grammar and first and follow sets */
+	/* Description: Construct parse table from grammar and first and follow sets */
     /* Arguments: Grammar, first and follow set structure, and parsing table */
-    /* Return Type: void */    
-	for(int i = 0; i < NON_TERMINAL_COUNT; ++i){
-
+    /* Return Type: void */ 
+	for(int i=0; i<NON_TERMINAL_COUNT; ++i){
 		Rules* rules = grammar->rules[i];
-		Rule* temp = rules->head;
-		
-        for(int j = 0;j< rules->ruleCount;j++){
-
-			SymbolList* symbols = temp->symbols;
-			SymbolNode* temp2 = symbols->head;
-
-			bool isContinued = false;
-
-			for(int k = 0; k < symbols->length; ++k){
-				
-                isContinued = false;
-
-				if(temp2->isTerminal){      // Terminal symbol
-					
-                    if(temp2->symbol.term == EPS){
-
-						for(int x = 0; x < TERMINAL_COUNT; ++x){
-							
-							if(sets->follow[i][x]){							
-								if(table[i][x]!=NULL && temp!=table[i][x]){
-									printf("ERROR: More than one rule indexed into the parse table at %s : %s\n",nonTerminalMap[i],terminalMap[x]);
+		Rule* tempRule = rules->head;
+		int nrules = rules->ruleCount;
+		for(int j=0; j<nrules; ++j){
+			SymbolList* ruleSymbols = tempRule->symbols;
+			SymbolNode* tempSymbol = ruleSymbols->head;
+			bool endHere = true;
+			int nsymbols = ruleSymbols->length;
+			for(int k=0; k<nsymbols; ++k){
+				if(tempSymbol->isTerminal){
+					//Terminal symbol
+					if(tempSymbol->symbol.term != EPS){
+						//terminal symbol not EPS
+						if(table[i][tempSymbol->symbol.term]!=NULL && tempRule!=table[i][tempSymbol->symbol.term]){
+							printf("ERROR: More than one rule indexed into the parse table at %s : %s\n",nonTerminalMap[i],terminalMap[tempSymbol->symbol.term]);
+						}
+						table[i][tempSymbol->symbol.term] = tempRule;
+						endHere = true;
+					}
+					else{
+						//terminal symbol is EPS
+						for(int p=0; p<TERMINAL_COUNT; ++p){
+							if(sets->follow[i][p]){
+								if(table[i][p]!=NULL && tempRule!=table[i][p]){
+									printf("ERROR: More than one rule indexed into the parse table at %s : %s\n", nonTerminalMap[i], terminalMap[p]);
 								}
-                                table[i][x] = temp;
+								table[i][p] = tempRule;
 							}
 						}
-						continue;
-					}
-					else{       // Terminal symbol other than eps
-						if(table[i][temp2->symbol.term]!=NULL && temp!=table[i][temp2->symbol.term]){
-							printf("ERROR: More than one rule indexed into the parse table at %s : %s\n",nonTerminalMap[i],terminalMap[temp2->symbol.term]);
-						}
-                        table[i][temp2->symbol.term] = temp;
-						break;
+						endHere = false;
 					}
 				}
-				else{           // Non-terminal
-					for(int x=0;x<TERMINAL_COUNT;x++){
-						if(sets->first[temp2->symbol.nonterm][x]){
-							if(x!=EPS){
-								if(table[i][x]!=NULL && table[i][x]!=temp){
-									printf("ERROR: More than one rule indexed into the parse table at %s : %s\n",nonTerminalMap[i],terminalMap[x]);
+				else{
+					//Nonterminal
+					for(int p=0; p<TERMINAL_COUNT; ++p){
+						if(sets->first[tempSymbol->symbol.nonterm][p]){
+							if(p!=EPS){
+								if(table[i][p]!=NULL && table[i][p]!=tempRule){
+									printf("ERROR: More than one rule indexed into the parse table at %s : %s\n",nonTerminalMap[i],terminalMap[p]);
 								}
-                                table[i][x] = temp;
-
+								table[i][p] = tempRule;
+								endHere = true;
 							}
-							else{
-								isContinued = true;
-							}
+							else 
+								endHere = false;
 						}
 					}
 				}
-                temp2 = temp2->next;                
-				if(isContinued)
-					continue;
-				else
-					break;
+				tempSymbol = tempSymbol->next;
+				if(endHere) break;
+				else continue;
 			}
-			temp = temp->next;
+			tempRule = tempRule->next;
 		}
 	}
 }
 
 void printParsingTable(ParsingTable table){
-    /* Description: Prints parsing table */
+	/* Description: Prints parsing table */
     /* Arguments: Parsing table */
-    /* Return Type: void */    
+    /* Return Type: void */ 
 	printf("\n\nPrinting Parsing Table:\n\n");
-	for(int i=0;i<NON_TERMINAL_COUNT;i++){
+	for(int i=0; i<NON_TERMINAL_COUNT; ++i){
 		printf("%2d. %25s : ",(i+1),nonTerminalMap[i]);
-		for(int z=0;z<TERMINAL_COUNT;z++){
-			if(table[i][z]!=NULL){
-				printf("1 ");
-			}
-			else
-				printf("0 ");
+		for(int j=0; j<TERMINAL_COUNT; ++j){
+			if(table[i][j]!=NULL) printf("1 ");
+			else printf("0 ");
 			printf(" ");
 		}
-
 		printf("\n\n");
 	}
 }
+
 
 ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAndFollow* ff, int* parseErrors){
     /* Description: Parse source code from file using parse table and first-follow sets and construct parse tree */

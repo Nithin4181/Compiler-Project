@@ -1,6 +1,5 @@
-
-#ifndef AST
-#define AST
+#ifndef _AST_H
+#define _AST_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,16 +40,33 @@ typedef enum{
     BOOLEAN2,
     BOOLEAN3,
     RETURN,
-    ID_LIST,
+    ID_LIST
 }astNodeName;
 
+typedef struct astChildren{
+	struct astNode* head;
+	int noSiblings;
+	struct astNode* tail;
+}ASTChildren;
 
+typedef struct astNode{
+	astNodeName label;
+	bool leaf;
+	struct astNode* parent;
+	ASTChildren* children;
+	struct astNode* next; 
+	Lexical_Unit* lu; 
 
+	struct symTableTreeNode* current_scope;
 
+	Token_type token;
 
+	struct typeList* returnParameters;
 
+	int lineNo;
+	Val* value;
+}ASTNode;
 
-
-
+typedef ASTNode* AST;
 
 #endif

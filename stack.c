@@ -74,17 +74,14 @@ void pushChildrenToStack(Stack* stack, TreeNode* treeNode){
 	Children* children = treeNode->children;
 	TreeNode* temp = children->head;
 
-	//DUMMY NODE
 	StackNode* head = createStackNode(NULL);
 	StackNode* temp_stack = head;
 	
-	//Don't Push EPSILON on the stack
 	if(temp->content->isTerminal && temp->content->type.term == EPS){
 		return;
 	}
 
 	while(temp!=NULL){
-		//Create a Stack Node
 		StackNode* node = createStackNode(temp);
 		
 		temp_stack->next = node;

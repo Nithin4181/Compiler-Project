@@ -616,29 +616,22 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
     /* Return Type: Parse tree */    
 
     printf("\n");
-	FILE* fp = lexer_initialisation(testcaseFile);  	//Initialize_lexer
+	FILE* fp = lexer_initialisation(testcaseFile);
 	if(fp == NULL){
 		printf("\nFile not opened for parsing\n");
 		return NULL;
 	}
-	//Making Start symbol as the root of parse tree
-    ParseTree tree = makeNode(false,program,NULL);
 
-	//Initializing Stack
 	Stack* stack = initializeStack();
-
-	//Pushing $ and starting nonterminal on the stack
 	TreeNode* bottomMarker =  makeNode(true,DOLLAR,NULL);
-
 	push(stack,bottomMarker);
+    
+    ParseTree tree = makeNode(false,program,NULL);
 	push(stack,tree);
-
-	Token_type lookahead;
-
-	//Initially get a token from the file
+	
 	Lexical_Unit* lu = getNextToken(&fp);
-
-	//If first token received is NULL
+	Token_type lookahead;
+	
 	if(lu == NULL){
 		printf("\n\nInput File Empty\n\n");
 		return NULL;			
@@ -646,11 +639,8 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
 	
 	bool hasError = false;
 
-	while(true){
-		//If input is consumed
-		if(lu == NULL){
-
-			//If input consumed
+	while(true){	
+		if(lu == NULL){			
 			if(bottomOfStack(stack) && !hasError){
 				printf("\n\n########## Source code is syntactically CORRECT ##########\n\n");
 			}
@@ -660,92 +650,37 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
 			}
 			break;
 		}
-
-		//Otherwise get the lookahead symbol
+		
 		lookahead = lu->token;				
 
-		if(lookahead == TK_ERROR){
-			//Skip Lexical Error
+        if(lookahead == TK_COMMENT){
+            lu = getNextToken(&fp);
+            continue;
+        }
+		else if(lookahead == TK_ERROR){
             hasError = true;
 			*parseErrors=1;
 			lu = getNextToken(&fp);
 			continue;
 		}
-        else if(lookahead == TK_COMMENT){
-            while(lookahead == TK_COMMENT){
-                lu = getNextToken(&fp);
-                if(lu == NULL)
-                    continue;
-                else
-                    lookahead = lu->token;
-            }
-        }
 
-		//If top of the stack is $ and input is still left
 		if(bottomOfStack(stack)){
 			*parseErrors = 1;
 			printf("\n\n########## Source code is syntactically WRONG ##########\n\n");
 			break;
 		}
-
-		//Pop the symbol on the top of the stack
+		
 		StackNode* stackNode = pop(stack);
 		TreeNode* treeNode = stackNode->parseTreeNode;
-		//Terminal
-
-		if(treeNode->content->isTerminal){
-    
-			//Symbol on the stack matches with the lookahead symbol
-			if(lookahead == treeNode->content->type.term){
-				//Will help in printing the parse tree
-				treeNode->lu = lu;
-				//Get next Lookahead Symbol
-				lu = getNextToken(&fp);
-				continue;			
-			}
-			//If lookahead and top of stack don't match
-			else{		
-				//Report Error
-				hasError = true;
-				*parseErrors = 1;                
-				fprintf(stderr,"Line %d\t| Syntax error:  The token  for lexeme %s does not match at line %d\n",lu->line_no,lu->lexeme,lu->line_no);
-
-				//Skip lookahead symbols until something matches
-				while(lu!=NULL){
-					lookahead = lu->token;
-					//Check for the current one 
-					if(lookahead == treeNode->content->type.term){
-						push(stack, treeNode);
-						break;
-					}					
-					//Check for the following one
-					else{
-                      Rule* ruleToBeUsed = table[treeNode->content->type.nonterm][lookahead];
-						if(ruleToBeUsed!=NULL){
-							break;
-						}
-					}
-					
-					
-					if(lu->token == TK_SEM){
-						lu = getNextToken(&fp);
-						break;
-					}
-					lu = getNextToken(&fp);
-				}
-				continue;			
-			}	
-		}			
-		//if top of the stack is a non terminal
-		else{
-    
-			//Get the rule to be applied from the parsing table
+		
+		if(!(treeNode->content->isTerminal)){
             Rule* ruleToBeUsed = table[treeNode->content->type.nonterm][lookahead];
-
-			//If no rule matches
             bool recovered = false;
-            if(ruleToBeUsed == NULL){
-                // printf("In non terminal error recovery\n");
+            if(ruleToBeUsed != NULL){			
+				addChildren(treeNode, ruleToBeUsed);
+				pushChildrenToStack(stack,treeNode);
+			}	
+			else{
                 *parseErrors = 1;
 				fprintf(stderr,"Line %d\t| Syntax error:  The token  for lexeme %s does not match at line %d\n",lu->line_no,lu->lexeme,lu->line_no);
                 StackNode* recStackNode = top(stack);
@@ -766,16 +701,44 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
                 }
                 if(recovered)
                     continue;
-            }
-			//Normal Case
-			else{		
-				//Add Children to the parse tree for the popped non terminal from the stack
-				addChildren(treeNode, ruleToBeUsed);
-				//PUSH RHS of the rule on the top of the stack
-				pushChildrenToStack(stack,treeNode);
-			}		
+            }	
 		}
-		//Go to begin of the while loop
+		else{
+			if(lookahead == treeNode->content->type.term){
+				treeNode->lu = lu;
+				lu = getNextToken(&fp);
+				continue;			
+			}
+			else{			
+				hasError = true;
+				*parseErrors = 1;                
+				fprintf(stderr,"Line %d\t| Syntax error:  The token  for lexeme %s does not match at line %d\n",lu->line_no,lu->lexeme,lu->line_no);
+				while(lu!=NULL){	
+					if(lookahead == treeNode->content->type.term){
+						push(stack, treeNode);
+						break;
+					}
+					else if(treeNode->content->isTerminal){
+						if(lookahead == treeNode->content->type.term)
+							break;
+					}					
+					else{
+                      Rule* ruleToBeUsed = table[treeNode->content->type.nonterm][lookahead];
+						if(ruleToBeUsed!=NULL){
+							break;
+						}
+					}
+					if(lu->token == TK_SEM){
+						lu = getNextToken(&fp);
+						lookahead = lu->token;
+						break;
+					}
+					lu = getNextToken(&fp);
+					lookahead = lu->token;
+				}
+				continue;			
+			}	
+		}			
 	}
 	if(fp!=NULL)
 		fclose(fp);
@@ -804,24 +767,20 @@ void printParseTree_util(TreeNode* node, FILE** fp1){
 	if(node == NULL){
 		return;
 	}
-	char* empty = "----";
+	char* blank = "----";
 	char* no = "No";
 	char* yes = "Yes";
 	char* root = "Root";
 
 	Children* children = node->children;
 
-	//If not a leaf node
 	if(children != NULL){
 		TreeNode* temp = children->head;
 		
-		//Printing the left most child
 		printParseTree_util(temp,fp1);
 
-		//Then print the node
-		printNode(fp1,node, 0, empty,no,yes,root);
+		printNode(fp1,node, 0, blank,no,yes,root);
 
-		//Then proceed to rest of the children
 		temp = temp->next;
 		
 		while(temp!=NULL){
@@ -829,9 +788,8 @@ void printParseTree_util(TreeNode* node, FILE** fp1){
 			temp = temp->next;
 		}	
 	}
-	//If Leaf Node, print it
 	else{
-		printNode(fp1,node, 1, empty,no,yes,root);		
+		printNode(fp1,node, 1, blank,no,yes,root);		
 	}
 }
 
@@ -840,47 +798,37 @@ void printNode(FILE** fp1, TreeNode* node, bool isLeaf, char* empty, char* no, c
     /* Arguments: Output file pointer, node of tree, details of node */
     /* Return Type: void */    
 	char* error = "<Error>" ;
-	//Leaf Node
 	if(isLeaf){	
-		//If leaf node is a non-terminal (in-case of incomplete trees) -- ERROR CASE
-		if(node->content->isTerminal == false){
-			//Root Node
-			if(node->parent == NULL){
-				fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,root,yes,nonTerminalMap[node->content->type.nonterm]);
-			}
-			else{
+		if(!(node->content->isTerminal)){
+			if(node->parent != NULL){
 				fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,nonTerminalMap[node->parent->content->type.nonterm],yes,nonTerminalMap[node->content->type.nonterm]);
 			}
+			else{
+				fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,root,yes,nonTerminalMap[node->content->type.nonterm]);
+			}
 		}	
-		//No lexeme for epsilon
 		else if(node->content->type.term==EPS){			
 			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s %s\n", empty,empty,empty,empty,nonTerminalMap[node->parent->content->type.nonterm],yes,terminalMap[node->content->type.term]);
 		}
-		//Some terminal nodes may not be assigned lexical tokens since they are not matched -- ERROR CASE
 		else if(node->lu == NULL){
 			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s %s\n", error, error, error, empty, nonTerminalMap[node->parent->content->type.nonterm], yes, terminalMap[node->content->type.term]);
 		}		
-        //Integer
 		else if(node->lu->token == TK_NUM){
 			fprintf(*fp1,"%-25s %-10d %-15s %-15d %-30s %-5s %s\n", node->lu->lexeme, node->lu->line_no, terminalMap[node->lu->token], node->lu->val->integer, nonTerminalMap[node->parent->content->type.nonterm], yes, terminalMap[node->content->type.term]);
 		}
-		//Real
 		else if(node->lu->token == TK_RNUM){
 			fprintf(*fp1,"%-25s %-10d %-15s %-15f %-30s %-5s %s\n", node->lu->lexeme, node->lu->line_no, terminalMap[node->lu->token], node->lu->val->real, nonTerminalMap[node->parent->content->type.nonterm], yes, terminalMap[node->content->type.term]);
 		}
-		//Not an integer or Real Number
 		else{
 			fprintf(*fp1,"%-25s %-10d %-15s %-15s %-30s %-5s %s\n", node->lu->lexeme, node->lu->line_no, terminalMap[node->lu->token], empty, nonTerminalMap[node->parent->content->type.nonterm], yes, terminalMap[node->content->type.term]);
 		}
 	}
-	//Non Leaf Node
 	else{
-		//Root Node
-		if(node->parent == NULL){
-			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,root,no,nonTerminalMap[node->content->type.nonterm]);
+		if(node->parent != NULL){
+			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,nonTerminalMap[node->parent->content->type.nonterm],no,nonTerminalMap[node->content->type.nonterm]);
 		}
 		else{
-			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,nonTerminalMap[node->parent->content->type.nonterm],no,nonTerminalMap[node->content->type.nonterm]);
+			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,root,no,nonTerminalMap[node->content->type.nonterm]);
 		}
 	}
 }

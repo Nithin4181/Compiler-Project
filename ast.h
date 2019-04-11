@@ -57,7 +57,7 @@ typedef struct astNode{
 	struct astNode* next; 
 	Lexical_Unit* lu; 
 
-	struct symTableTreeNode* current_scope;
+	struct symTableTreeNode* currentScope;
 
 	Token_type token;
 

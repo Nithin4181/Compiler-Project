@@ -44,3 +44,38 @@ char* astNodeNameMap[] = {
     "ID_LIST"
 };
 
+AST makeAST(ParseTree pt){
+    if (pt==NULL)   return NULL;
+
+    makeAST_postOrderTraversal(pt);
+
+    AST ast=(AST*)malloc(sizeof(AST));
+    ast=pt->addr;
+
+}
+
+void makeAST_postOrderTraversal(ParseTree pt)
+{
+    if (pt==NULL)   return NULL;
+
+    Children * ch= pt->children;
+
+    if(ch!=NULL){
+
+        ParseTree pt1=ch->head;
+        while (pt1!=NULL)
+        {
+            makeAST_postOrderTraversal(pt1);
+            pt1=pt1->next;
+        }
+    }
+
+    if (pt->ruleNo==0)  return;
+
+    makeAST_nodeTraversal(pt);
+}
+
+void addASTChildren(ASTChildren *ch,AST * ast){
+    
+}
+

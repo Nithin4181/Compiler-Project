@@ -123,14 +123,14 @@ char* nonTerminalMap[] = {  // Maps enum values to corresponding non-terminal na
     "more_ids"
 };
 
-Grammar* loadGrammar(char* inputFile){
+Grammar* loadGrammar(char* inputFileName){
     /* Description: Loads grammar from txt file */
     /* Arguments: File name of grammar file */
     /* Return Type: Pointer to grammar structure */
 	int ruleNo = 1;
     bool alternateRule = false;
 
-	FILE* inputFile = fopen(inputFile, "r");
+	FILE* inputFile = fopen(inputFileName, "r");
 
 	if(inputFile == NULL){						// Handler if an error is thrown while opening a file
 		fprintf(stderr, "Error opening file\n");
@@ -427,7 +427,7 @@ bool computeFollowUtil(Grammar* grammar, bool** first, bool** follow){
 						if(temp3->isTerminal == false){
 							
 							hasChanged = hasChanged | setUnion(follow[temp2->symbol.nonterm],first[temp3->symbol.nonterm]);
-							if(!first[temp3->symbol.nonterm][EPS]){
+							if(!first[temp3->symbol.nonterm][EPS])
 								break;
 							
 						}
@@ -438,7 +438,6 @@ bool computeFollowUtil(Grammar* grammar, bool** first, bool** follow){
 							    addToSet(follow[temp2->symbol.nonterm], temp3->symbol.term);
                             }
 							break;
-							}
 						}
 						temp3 = temp3->next;						
 					}

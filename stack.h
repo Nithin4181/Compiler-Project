@@ -20,8 +20,6 @@ typedef struct _stackNode{
 	struct _stackNode* next;
 }StackNode;
 
-// typedef StackNode* Stack;
-
 typedef struct _stack{
     StackNode* head;
     int size;

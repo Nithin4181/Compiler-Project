@@ -15,24 +15,24 @@ Authors:
 
 #include "parserDef.h" 
 
-//Information about the tree Node
 typedef struct _nodeContent{
 	bool isTerminal;
 	Symbol type;
 }NodeContent;
 
-//Linked List of siblings
 typedef struct _linkedList{
 	struct _treeNode* head;
 	int siblingCount;
 }Children;
 
 typedef struct _treeNode{
-	struct _treeNode* next; // The node itself is a part of linked list of siblings
+	struct _treeNode* next;
 	NodeContent* content;
-	Lexical_Unit* lu;       // Only for leaf nodes
-	Children* children;		//Linked list of Children
-	struct _treeNode* parent; //Pointer to parent node
+	Lexical_Unit* lu;      
+	Children* children;
+	struct _treeNode* parent;
+	struct astNode* addr;
+	struct astNode* inh_addr;	
 	int ruleNo;
 }TreeNode;
 

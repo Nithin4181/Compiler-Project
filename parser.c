@@ -123,14 +123,14 @@ char* nonTerminalMap[] = {  // Maps enum values to corresponding non-terminal na
     "more_ids"
 };
 
-Grammar* loadGrammar(char* inputFile){
+Grammar* loadGrammar(char* inputFileName){
     /* Description: Loads grammar from txt file */
     /* Arguments: File name of grammar file */
     /* Return Type: Pointer to grammar structure */
 	int ruleNo = 1;
     bool alternateRule = false;
 
-	FILE* inputFile = fopen(inputFile, "r");
+	FILE* inputFile = fopen(inputFileName, "r");
 
 	if(inputFile == NULL){						// Handler if an error is thrown while opening a file
 		fprintf(stderr, "Error opening file\n");
@@ -367,32 +367,33 @@ void computeFirstSet(Grammar* grammar, NonTerminal nonTerminal, bool** first){
     /* Arguments: Grammar, non-terminal, and first set table */
     /* Return Type: void */    	        
 	Rules* rules = grammar->rules[nonTerminal];
-	Rule* temp = rules->head;
+	Rule* temp1 = rules->head;
 	for(int j = 0;j< rules->ruleCount;j++){
-		SymbolList* symbols = temp->symbols;
+		SymbolList* symbols = temp1->symbols;
 		SymbolNode* temp2 = symbols->head;
 		int k;
 		for(k=0; k < symbols->length; k++){
-			//If a terminal has occurred
-			if(temp2->isTerminal == true){
-				addToSet(first[nonTerminal],temp2->symbol.term);				
-				break;
-			}
-			else{
-                if(nonTerminal!=temp2->symbol.nonterm){
+			
+			if(temp2->isTerminal == false){
+				if(nonTerminal!=temp2->symbol.nonterm){
                     computeFirstSet(grammar, temp2->symbol.nonterm,first);
 				    setUnion(first[nonTerminal], first[temp2->symbol.nonterm]);
                 }
 				if(!first[temp2->symbol.nonterm][EPS]){
 					break;
 				}
+				
+			}
+			else{
+                addToSet(first[nonTerminal],temp2->symbol.term);				
+				break;
 			}			
 			temp2 = temp2->next;
 		}
-		if(k == symbols->length){
+		if(symbols->length == k){
 			addToSet(first[nonTerminal],EPS);
 		}
-		temp = temp->next;
+		temp1 = temp1->next;
 	}
 }
 
@@ -400,8 +401,8 @@ void computeFollowSet(Grammar* grammar, FirstAndFollow* sets){
     /* Description: Compute follow set for given grammar */
     /* Arguments: Grammar and first and follow set structure */
     /* Return Type: void */    	        
-	addToSet(sets->follow[program],DOLLAR);
 	bool hasChanged = true;
+	addToSet(sets->follow[program],DOLLAR);
 	while(hasChanged){          // Repeat until follow set remains unchanged
 		hasChanged = computeFollowUtil(grammar,sets->first,sets->follow);
 	}
@@ -414,27 +415,29 @@ bool computeFollowUtil(Grammar* grammar, bool** first, bool** follow){
     bool hasChanged = false;
 	for(int i=0; i<NON_TERMINAL_COUNT; ++i){
 		Rules* rules = grammar->rules[i];
-		Rule* temp = rules->head;
+		Rule* temp1 = rules->head;
 		for(int j = 0; j< rules->ruleCount; ++j){
-			SymbolList* symbols = temp->symbols;
+			SymbolList* symbols = temp1->symbols;
 			SymbolNode* temp2 = symbols->head;
 
 			for(int k = 0; k < symbols->length; ++k){
 				if(temp2->isTerminal == false){
 					SymbolNode* temp3 = temp2->next;
 					while(temp3 != NULL){
-						if(temp3->isTerminal == true){
+						if(temp3->isTerminal == false){
+							
+							hasChanged = hasChanged | setUnion(follow[temp2->symbol.nonterm],first[temp3->symbol.nonterm]);
+							if(!first[temp3->symbol.nonterm][EPS])
+								break;
+							
+						}
+						else{
+							
 							if(!follow[temp2->symbol.nonterm][ temp3->symbol.term]){
 								hasChanged = true;
 							    addToSet(follow[temp2->symbol.nonterm], temp3->symbol.term);
                             }
 							break;
-						}
-						else{
-							hasChanged = hasChanged | setUnion(follow[temp2->symbol.nonterm],first[temp3->symbol.nonterm]);
-							if(!first[temp3->symbol.nonterm][EPS]){
-								break;
-							}
 						}
 						temp3 = temp3->next;						
 					}
@@ -444,7 +447,7 @@ bool computeFollowUtil(Grammar* grammar, bool** first, bool** follow){
 				}								
 				temp2 = temp2->next;
 			}
-			temp = temp->next;
+			temp1 = temp1->next;
 		}		
 	}
 	return hasChanged;
@@ -480,130 +483,123 @@ void printFirstAndFollow(FirstAndFollow* sets){
 	printf("\n\nFirst Set:\n\n");
 	for(int i=0; i < NON_TERMINAL_COUNT; ++i){
 		printf("%d. %s => ",(i+1),nonTerminalMap[i]);
-		printSet(sets->first[i]);
+		printf("( ");
+		for(int i=0;i< TERMINAL_COUNT; ++i){
+			if(sets->first[i]){
+				printf("%s ",terminalMap[i]);
+			}
+		}
+		printf(")\n");
 	}	
+	
 	printf("\n\nFollow Set:\n\n");
 	for(int i=0;i<NON_TERMINAL_COUNT;i++){
 		printf("%d. %s => ",(i+1),nonTerminalMap[i]);
-		printSet(sets->follow[i]);
+		printf("( ");
+		for(int i=0;i< TERMINAL_COUNT; ++i){
+			if(sets->follow[i]){
+				printf("%s ",terminalMap[i]);
+			}
+		}
+		printf(")\n");
 	}
 }
 
-void printSet(bool* set){
-    /* Description: Print set */
-    /* Arguments: Set to be printed */
-    /* Return Type: void */
-	printf("{ ");
-	for(int i=0;i< TERMINAL_COUNT; ++i){
-		if(set[i]){
-			printf("%s ",terminalMap[i]);
-		}
-	}
-	printf("}\n");
-}
 
 ParsingTable makeNewParseTable(){
-    /* Description: Make new empty parse table */
+	/* Description: Make new empty parse table */
     /* Arguments: void */
-    /* Return Type: ParsingTable */    
-    ParsingTable pt = (ParsingTable)malloc(sizeof(Rule**)*NON_TERMINAL_COUNT);  // PasingTable is a 2D array of pointers to grammar rules
-    for (int i = 0; i < NON_TERMINAL_COUNT; ++i) 
-         pt[i] = (Rule**)malloc(sizeof(Rule*)*TERMINAL_COUNT); 
-    for(int i = 0; i < NON_TERMINAL_COUNT; ++i)
-        for(int j = 0; j < TERMINAL_COUNT; ++j)
-            pt[i][j] = NULL;
-    return pt;
+    /* Return Type: ParsingTable */   
+    ParsingTable table = (ParsingTable)malloc(sizeof(Rule**)*NON_TERMINAL_COUNT);  
+    for(int i=0; i<NON_TERMINAL_COUNT; ++i){
+         table[i] = (Rule**)malloc(sizeof(Rule*)*TERMINAL_COUNT);
+	}
+    for(int i=0; i<NON_TERMINAL_COUNT; ++i){
+        for(int j=0; j<TERMINAL_COUNT; ++j){
+            table[i][j] = NULL;
+		}
+	}
+    return table;
 }
 
 void createParseTable(Grammar* grammar, FirstAndFollow* sets, ParsingTable table){
-    /* Description: Construct parse table from grammar and first and follow sets */
+	/* Description: Construct parse table from grammar and first and follow sets */
     /* Arguments: Grammar, first and follow set structure, and parsing table */
-    /* Return Type: void */    
-	for(int i = 0; i < NON_TERMINAL_COUNT; ++i){
-
+    /* Return Type: void */ 
+	for(int i=0; i<NON_TERMINAL_COUNT; ++i){
 		Rules* rules = grammar->rules[i];
-		Rule* temp = rules->head;
-		
-        for(int j = 0;j< rules->ruleCount;j++){
-
-			SymbolList* symbols = temp->symbols;
-			SymbolNode* temp2 = symbols->head;
-
-			bool isContinued = false;
-
-			for(int k = 0; k < symbols->length; ++k){
-				
-                isContinued = false;
-
-				if(temp2->isTerminal){      // Terminal symbol
-					
-                    if(temp2->symbol.term == EPS){
-
-						for(int x = 0; x < TERMINAL_COUNT; ++x){
-							
-							if(sets->follow[i][x]){							
-								if(table[i][x]!=NULL && temp!=table[i][x]){
-									printf("ERROR: More than one rule indexed into the parse table at %s : %s\n",nonTerminalMap[i],terminalMap[x]);
+		Rule* tempRule = rules->head;
+		int nrules = rules->ruleCount;
+		for(int j=0; j<nrules; ++j){
+			SymbolList* ruleSymbols = tempRule->symbols;
+			SymbolNode* tempSymbol = ruleSymbols->head;
+			bool endHere = true;
+			int nsymbols = ruleSymbols->length;
+			for(int k=0; k<nsymbols; ++k){
+				if(tempSymbol->isTerminal){
+					//Terminal symbol
+					if(tempSymbol->symbol.term != EPS){
+						//terminal symbol not EPS
+						if(table[i][tempSymbol->symbol.term]!=NULL && tempRule!=table[i][tempSymbol->symbol.term]){
+							printf("ERROR: More than one rule indexed into the parse table at %s : %s\n",nonTerminalMap[i],terminalMap[tempSymbol->symbol.term]);
+						}
+						table[i][tempSymbol->symbol.term] = tempRule;
+						endHere = true;
+					}
+					else{
+						//terminal symbol is EPS
+						for(int p=0; p<TERMINAL_COUNT; ++p){
+							if(sets->follow[i][p]){
+								if(table[i][p]!=NULL && tempRule!=table[i][p]){
+									printf("ERROR: More than one rule indexed into the parse table at %s : %s\n", nonTerminalMap[i], terminalMap[p]);
 								}
-                                table[i][x] = temp;
+								table[i][p] = tempRule;
 							}
 						}
-						continue;
-					}
-					else{       // Terminal symbol other than eps
-						if(table[i][temp2->symbol.term]!=NULL && temp!=table[i][temp2->symbol.term]){
-							printf("ERROR: More than one rule indexed into the parse table at %s : %s\n",nonTerminalMap[i],terminalMap[temp2->symbol.term]);
-						}
-                        table[i][temp2->symbol.term] = temp;
-						break;
+						endHere = false;
 					}
 				}
-				else{           // Non-terminal
-					for(int x=0;x<TERMINAL_COUNT;x++){
-						if(sets->first[temp2->symbol.nonterm][x]){
-							if(x!=EPS){
-								if(table[i][x]!=NULL && table[i][x]!=temp){
-									printf("ERROR: More than one rule indexed into the parse table at %s : %s\n",nonTerminalMap[i],terminalMap[x]);
+				else{
+					//Nonterminal
+					for(int p=0; p<TERMINAL_COUNT; ++p){
+						if(sets->first[tempSymbol->symbol.nonterm][p]){
+							if(p!=EPS){
+								if(table[i][p]!=NULL && table[i][p]!=tempRule){
+									printf("ERROR: More than one rule indexed into the parse table at %s : %s\n",nonTerminalMap[i],terminalMap[p]);
 								}
-                                table[i][x] = temp;
-
+								table[i][p] = tempRule;
+								endHere = true;
 							}
-							else{
-								isContinued = true;
-							}
+							else 
+								endHere = false;
 						}
 					}
 				}
-                temp2 = temp2->next;                
-				if(isContinued)
-					continue;
-				else
-					break;
+				tempSymbol = tempSymbol->next;
+				if(endHere) break;
+				else continue;
 			}
-			temp = temp->next;
+			tempRule = tempRule->next;
 		}
 	}
 }
 
 void printParsingTable(ParsingTable table){
-    /* Description: Prints parsing table */
+	/* Description: Prints parsing table */
     /* Arguments: Parsing table */
-    /* Return Type: void */    
+    /* Return Type: void */ 
 	printf("\n\nPrinting Parsing Table:\n\n");
-	for(int i=0;i<NON_TERMINAL_COUNT;i++){
+	for(int i=0; i<NON_TERMINAL_COUNT; ++i){
 		printf("%2d. %25s : ",(i+1),nonTerminalMap[i]);
-		for(int z=0;z<TERMINAL_COUNT;z++){
-			if(table[i][z]!=NULL){
-				printf("1 ");
-			}
-			else
-				printf("0 ");
+		for(int j=0; j<TERMINAL_COUNT; ++j){
+			if(table[i][j]!=NULL) printf("1 ");
+			else printf("0 ");
 			printf(" ");
 		}
-
 		printf("\n\n");
 	}
 }
+
 
 ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAndFollow* ff, int* parseErrors){
     /* Description: Parse source code from file using parse table and first-follow sets and construct parse tree */
@@ -611,29 +607,22 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
     /* Return Type: Parse tree */    
 
     printf("\n");
-	FILE* fp = lexer_initialisation(testcaseFile);  	//Initialize_lexer
+	FILE* fp = lexer_initialisation(testcaseFile);
 	if(fp == NULL){
 		printf("\nFile not opened for parsing\n");
 		return NULL;
 	}
-	//Making Start symbol as the root of parse tree
-    ParseTree tree = makeNode(false,program,NULL);
 
-	//Initializing Stack
 	Stack* stack = initializeStack();
-
-	//Pushing $ and starting nonterminal on the stack
 	TreeNode* bottomMarker =  makeNode(true,DOLLAR,NULL);
-
 	push(stack,bottomMarker);
+    
+    ParseTree tree = makeNode(false,program,NULL);
 	push(stack,tree);
-
-	Token_type lookahead;
-
-	//Initially get a token from the file
+	
 	Lexical_Unit* lu = getNextToken(&fp);
-
-	//If first token received is NULL
+	Token_type lookahead;
+	
 	if(lu == NULL){
 		printf("\n\nInput File Empty\n\n");
 		return NULL;			
@@ -641,11 +630,8 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
 	
 	bool hasError = false;
 
-	while(true){
-		//If input is consumed
-		if(lu == NULL){
-
-			//If input consumed
+	while(true){	
+		if(lu == NULL){			
 			if(bottomOfStack(stack) && !hasError){
 				printf("\n\n########## Source code is syntactically CORRECT ##########\n\n");
 			}
@@ -655,92 +641,37 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
 			}
 			break;
 		}
-
-		//Otherwise get the lookahead symbol
+		
 		lookahead = lu->token;				
 
-		if(lookahead == TK_ERROR){
-			//Skip Lexical Error
+        if(lookahead == TK_COMMENT){
+            lu = getNextToken(&fp);
+            continue;
+        }
+		else if(lookahead == TK_ERROR){
             hasError = true;
 			*parseErrors=1;
 			lu = getNextToken(&fp);
 			continue;
 		}
-        else if(lookahead == TK_COMMENT){
-            while(lookahead == TK_COMMENT){
-                lu = getNextToken(&fp);
-                if(lu == NULL)
-                    continue;
-                else
-                    lookahead = lu->token;
-            }
-        }
 
-		//If top of the stack is $ and input is still left
 		if(bottomOfStack(stack)){
 			*parseErrors = 1;
 			printf("\n\n########## Source code is syntactically WRONG ##########\n\n");
 			break;
 		}
-
-		//Pop the symbol on the top of the stack
+		
 		StackNode* stackNode = pop(stack);
 		TreeNode* treeNode = stackNode->parseTreeNode;
-		//Terminal
-
-		if(treeNode->content->isTerminal){
-    
-			//Symbol on the stack matches with the lookahead symbol
-			if(lookahead == treeNode->content->type.term){
-				//Will help in printing the parse tree
-				treeNode->lu = lu;
-				//Get next Lookahead Symbol
-				lu = getNextToken(&fp);
-				continue;			
-			}
-			//If lookahead and top of stack don't match
-			else{		
-				//Report Error
-				hasError = true;
-				*parseErrors = 1;                
-				fprintf(stderr,"Line %d\t| Syntax error:  The token  for lexeme %s does not match at line %d\n",lu->line_no,lu->lexeme,lu->line_no);
-
-				//Skip lookahead symbols until something matches
-				while(lu!=NULL){
-					lookahead = lu->token;
-					//Check for the current one 
-					if(lookahead == treeNode->content->type.term){
-						push(stack, treeNode);
-						break;
-					}					
-					//Check for the following one
-					else{
-                      Rule* ruleToBeUsed = table[treeNode->content->type.nonterm][lookahead];
-						if(ruleToBeUsed!=NULL){
-							break;
-						}
-					}
-					
-					
-					if(lu->token == TK_SEM){
-						lu = getNextToken(&fp);
-						break;
-					}
-					lu = getNextToken(&fp);
-				}
-				continue;			
-			}	
-		}			
-		//if top of the stack is a non terminal
-		else{
-    
-			//Get the rule to be applied from the parsing table
+		
+		if(!(treeNode->content->isTerminal)){
             Rule* ruleToBeUsed = table[treeNode->content->type.nonterm][lookahead];
-
-			//If no rule matches
             bool recovered = false;
-            if(ruleToBeUsed == NULL){
-                // printf("In non terminal error recovery\n");
+            if(ruleToBeUsed != NULL){			
+				addChildren(treeNode, ruleToBeUsed);
+				pushChildrenToStack(stack,treeNode);
+			}	
+			else{
                 *parseErrors = 1;
 				fprintf(stderr,"Line %d\t| Syntax error:  The token  for lexeme %s does not match at line %d\n",lu->line_no,lu->lexeme,lu->line_no);
                 StackNode* recStackNode = top(stack);
@@ -761,16 +692,44 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
                 }
                 if(recovered)
                     continue;
-            }
-			//Normal Case
-			else{		
-				//Add Children to the parse tree for the popped non terminal from the stack
-				addChildren(treeNode, ruleToBeUsed);
-				//PUSH RHS of the rule on the top of the stack
-				pushChildrenToStack(stack,treeNode);
-			}		
+            }	
 		}
-		//Go to begin of the while loop
+		else{
+			if(lookahead == treeNode->content->type.term){
+				treeNode->lu = lu;
+				lu = getNextToken(&fp);
+				continue;			
+			}
+			else{			
+				hasError = true;
+				*parseErrors = 1;                
+				fprintf(stderr,"Line %d\t| Syntax error:  The token  for lexeme %s does not match at line %d\n",lu->line_no,lu->lexeme,lu->line_no);
+				while(lu!=NULL){	
+					if(lookahead == treeNode->content->type.term){
+						push(stack, treeNode);
+						break;
+					}
+					else if(treeNode->content->isTerminal){
+						if(lookahead == treeNode->content->type.term)
+							break;
+					}					
+					else{
+                      Rule* ruleToBeUsed = table[treeNode->content->type.nonterm][lookahead];
+						if(ruleToBeUsed!=NULL){
+							break;
+						}
+					}
+					if(lu->token == TK_SEM){
+						lu = getNextToken(&fp);
+						lookahead = lu->token;
+						break;
+					}
+					lu = getNextToken(&fp);
+					lookahead = lu->token;
+				}
+				continue;			
+			}	
+		}			
 	}
 	if(fp!=NULL)
 		fclose(fp);
@@ -799,24 +758,20 @@ void printParseTree_util(TreeNode* node, FILE** fp1){
 	if(node == NULL){
 		return;
 	}
-	char* empty = "----";
+	char* blank = "----";
 	char* no = "No";
 	char* yes = "Yes";
 	char* root = "Root";
 
 	Children* children = node->children;
 
-	//If not a leaf node
 	if(children != NULL){
 		TreeNode* temp = children->head;
 		
-		//Printing the left most child
 		printParseTree_util(temp,fp1);
 
-		//Then print the node
-		printNode(fp1,node, 0, empty,no,yes,root);
+		printNode(fp1,node, 0, blank,no,yes,root);
 
-		//Then proceed to rest of the children
 		temp = temp->next;
 		
 		while(temp!=NULL){
@@ -824,9 +779,8 @@ void printParseTree_util(TreeNode* node, FILE** fp1){
 			temp = temp->next;
 		}	
 	}
-	//If Leaf Node, print it
 	else{
-		printNode(fp1,node, 1, empty,no,yes,root);		
+		printNode(fp1,node, 1, blank,no,yes,root);		
 	}
 }
 
@@ -835,47 +789,37 @@ void printNode(FILE** fp1, TreeNode* node, bool isLeaf, char* empty, char* no, c
     /* Arguments: Output file pointer, node of tree, details of node */
     /* Return Type: void */    
 	char* error = "<Error>" ;
-	//Leaf Node
 	if(isLeaf){	
-		//If leaf node is a non-terminal (in-case of incomplete trees) -- ERROR CASE
-		if(node->content->isTerminal == false){
-			//Root Node
-			if(node->parent == NULL){
-				fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,root,yes,nonTerminalMap[node->content->type.nonterm]);
-			}
-			else{
+		if(!(node->content->isTerminal)){
+			if(node->parent != NULL){
 				fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,nonTerminalMap[node->parent->content->type.nonterm],yes,nonTerminalMap[node->content->type.nonterm]);
 			}
+			else{
+				fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,root,yes,nonTerminalMap[node->content->type.nonterm]);
+			}
 		}	
-		//No lexeme for epsilon
 		else if(node->content->type.term==EPS){			
 			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s %s\n", empty,empty,empty,empty,nonTerminalMap[node->parent->content->type.nonterm],yes,terminalMap[node->content->type.term]);
 		}
-		//Some terminal nodes may not be assigned lexical tokens since they are not matched -- ERROR CASE
 		else if(node->lu == NULL){
 			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s %s\n", error, error, error, empty, nonTerminalMap[node->parent->content->type.nonterm], yes, terminalMap[node->content->type.term]);
 		}		
-        //Integer
 		else if(node->lu->token == TK_NUM){
 			fprintf(*fp1,"%-25s %-10d %-15s %-15d %-30s %-5s %s\n", node->lu->lexeme, node->lu->line_no, terminalMap[node->lu->token], node->lu->val->integer, nonTerminalMap[node->parent->content->type.nonterm], yes, terminalMap[node->content->type.term]);
 		}
-		//Real
 		else if(node->lu->token == TK_RNUM){
 			fprintf(*fp1,"%-25s %-10d %-15s %-15f %-30s %-5s %s\n", node->lu->lexeme, node->lu->line_no, terminalMap[node->lu->token], node->lu->val->real, nonTerminalMap[node->parent->content->type.nonterm], yes, terminalMap[node->content->type.term]);
 		}
-		//Not an integer or Real Number
 		else{
 			fprintf(*fp1,"%-25s %-10d %-15s %-15s %-30s %-5s %s\n", node->lu->lexeme, node->lu->line_no, terminalMap[node->lu->token], empty, nonTerminalMap[node->parent->content->type.nonterm], yes, terminalMap[node->content->type.term]);
 		}
 	}
-	//Non Leaf Node
 	else{
-		//Root Node
-		if(node->parent == NULL){
-			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,root,no,nonTerminalMap[node->content->type.nonterm]);
+		if(node->parent != NULL){
+			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,nonTerminalMap[node->parent->content->type.nonterm],no,nonTerminalMap[node->content->type.nonterm]);
 		}
 		else{
-			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,nonTerminalMap[node->parent->content->type.nonterm],no,nonTerminalMap[node->content->type.nonterm]);
+			fprintf(*fp1,"%-25s %-10s %-15s %-15s %-30s %-5s <%s>\n", empty,empty,empty,empty,root,no,nonTerminalMap[node->content->type.nonterm]);
 		}
 	}
 }

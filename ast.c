@@ -678,3 +678,45 @@ void makeAST_nodeTraversal(ParseTree pt){
             break;
     }
 }
+
+void getParseTreeSize(ParseTree pt, int* count, int* size){
+    if(pt == NULL)
+        return;
+    *size += sizeof(TreeNode);
+    ++(*count);
+    Children* ch = pt->children;
+    if(ch != NULL){
+        ParseTree pt2 = ch->head;
+        while(pt2!=NULL){
+            getParseTreeSize(pt2, count, size);
+            pt2 = pt2->next;
+        }
+    }
+}
+
+void getASTSize(AST ast, int* count, int* size){
+    if(ast == NULL)
+        return;
+    *size += sizeof(ASTNode);
+    ++(*count);
+    ASTChildren* ch = ast->children;
+    if( ch != NULL){
+        AST ast2 = ch->head;
+        while(ast2 != NULL){
+            getASTSize(ast2, count, size);
+            ast2 = ast2->next;
+        }
+    }
+}
+
+void compressionRation(ParseTree pt, AST ast){
+    int ptNodes = 0, ptSize = 0, astNodes = 0, astSize = 0;
+    getParseTreeSize(pt,&ptNodes,&ptSize);
+    getASTSize(ast,&astNodes,&astSize);
+	printf("\n\nPARSE TREE\n\tNumber of nodes = %d\n\tAllocated memory = %d bytes",ptNodes,ptSize);
+	printf("\n\nABSTRACT SYNTAX TREE\n\tNumber of nodes = %d\n\tAllocated Memory = %d bytes\n\n", astNodes, astSize);
+
+	float compressesionRatio = ((ptSize - astSize)/(float)ptSize)*(float)100;
+
+	printf("Compression ratio: %f\n", compressesionRatio);
+}

@@ -101,5 +101,10 @@ void addReturnType(typeList *tl, Token_type type);
 
 void makeAST_nodeTraversal(ParseTree pt);
 
+void compressionRation(ParseTree pt, AST ast);
+
+void getASTSize(AST ast, int* count, int* size);
+
+void getParseTreeSize(ParseTree pt, int* count, int* size);
 
 #endif

@@ -678,3 +678,43 @@ void makeAST_nodeTraversal(ParseTree pt){
             break;
     }
 }
+
+void displayAST(AST ast){
+
+    printf("%20s %30s  %15s\n\n\n\n\n\n", "NODE TYPE", "PARENT TYPE", "IS_LEAF" );
+
+    printPreOrderAST(ast);
+}
+
+void displayPreOrderAST(AST ast){
+
+    char *p;
+    if (ast==NULL)  return ;
+
+    if (ast->parent==NULL){
+        p="None";
+    }
+    else{
+        p=astNodeNameMap[ast->parent->label];        
+    }
+
+    if (ast->leaf){
+        printf("%20s %30s  %15s\n\n\n\n\n\n", terminalMap[ast->lu->token],p,"yes");
+    }
+    else{
+        printf("%20s %30s  %15s\n\n\n\n\n\n", astNodeNameMap[ast->label],p,"no");
+    }
+
+    ASTChildren *ch=ast->children;
+    ASTNode* ch1=NULL;
+
+    if (ch!=NULL){
+        ch1=ch->head;
+
+        while (ch1!=NULL){
+            displayPreOrderAST(ch1);
+            ch1=ch1->next;
+        }
+    }
+    
+}

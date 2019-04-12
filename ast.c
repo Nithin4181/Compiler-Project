@@ -679,7 +679,6 @@ void makeAST_nodeTraversal(ParseTree pt){
     }
 }
 
-<<<<<<< HEAD
 void displayAST(AST ast){
 
     printf("%20s %30s  %15s\n\n\n\n\n\n", "NODE TYPE", "PARENT TYPE", "IS_LEAF" );
@@ -718,7 +717,6 @@ void displayPreOrderAST(AST ast){
         }
     }
     
-=======
 void getParseTreeSize(ParseTree pt, int* count, int* size){
     if(pt == NULL)
         return;
@@ -749,7 +747,7 @@ void getASTSize(AST ast, int* count, int* size){
     }
 }
 
-void compressionRation(ParseTree pt, AST ast){
+void compressionRatio(ParseTree pt, AST ast){
     int ptNodes = 0, ptSize = 0, astNodes = 0, astSize = 0;
     getParseTreeSize(pt,&ptNodes,&ptSize);
     getASTSize(ast,&astNodes,&astSize);
@@ -759,5 +757,4 @@ void compressionRation(ParseTree pt, AST ast){
 	float compressesionRatio = ((ptSize - astSize)/(float)ptSize)*(float)100;
 
 	printf("Compression ratio: %f\n", compressesionRatio);
->>>>>>> 30bcabc701508b086132e15e6bc49ee1ab522887
 }

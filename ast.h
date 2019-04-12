@@ -81,4 +81,25 @@ typedef struct _typeListNode{
     Token_type type;
 }typeListNode;
 
+AST makeAST(ParseTree pt);
+
+void makeAST_postOrderTraversal(ParseTree pt);
+
+ASTChildren* initializeASTChildren();
+
+void addASTChildren(ASTChildren *ch,AST * ast);
+
+ASTNode* makeASTNode(astNodeName label, bool leaf, ASTNode* parent, ASTChildren* children, ASTNode* next, Lexical_Unit* lu);
+
+inline ASTNode* makeASTLeaf(Lexical_Unit* lu);
+
+void addParentPointers(ASTNode* parent, ASTChildren* children);
+
+typeList * initializeTypeList();
+
+void addReturnType(typeList *tl, Token_type type);
+
+void makeAST_nodeTraversal(ParseTree pt);
+
+
 #endif

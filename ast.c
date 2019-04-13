@@ -98,7 +98,7 @@ void addASTChildren(ASTChildren *ch,AST * ast){
     ch->noSiblings+=1;
 }
     
-ASTNode* makeASTNode(astNodeName label, bool leaf, ASTNode* parent, ASTChildren* children, ASTNode* next, Lexical_Unit* lu){
+ASTNode* makeASTNode(astNodeName label, bool leaf, ASTNode* parent, ASTChildren* children, ASTNode* next, Lexical_Unit* lu, bool global){
     ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode));
     node->label = label;
     node->leaf = leaf;
@@ -106,6 +106,7 @@ ASTNode* makeASTNode(astNodeName label, bool leaf, ASTNode* parent, ASTChildren*
     node->children = children;
     node->next = next;
     node->lu = lu;
+    node->global = global;
 
     node->currentScope = NULL;
     node->token = -1;
@@ -120,7 +121,7 @@ ASTNode* makeASTNode(astNodeName label, bool leaf, ASTNode* parent, ASTChildren*
 }
 
 inline ASTNode* makeASTLeaf(Lexical_Unit* lu){
-    return makeASTNode(-1,true,(ASTNode*)NULL,(ASTChildren*)NULL,(ASTNode*)NULL,lu);
+    return makeASTNode(-1,true,(ASTNode*)NULL,(ASTChildren*)NULL,(ASTNode*)NULL,lu, false);
 }
 
 void addParentPointers(ASTNode* parent, ASTChildren* children){
@@ -176,14 +177,14 @@ void makeAST_nodeTraversal(ParseTree pt){
             ASTChildren* children = initializeASTChildren(); 
 			addASTChildren(children, pt->children->head->addr);
 			addASTChildren(children, pt->children->head->next->addr);
-			pt->addr = makeASTNode(PROGRAM,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(PROGRAM,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
         case  2  :
             ASTChildren* children = initializeASTChildren(); 
 			addASTChildren(children, pt->children->head->next->addr);
-			pt->addr = makeASTNode(MAIN,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(MAIN,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -191,7 +192,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             ASTChildren* children = initializeASTChildren(); 
 			addASTChildren(children, pt->children->head->addr);
 			addASTChildren(children, pt->children->head->next->addr);
-			pt->addr = makeASTNode(OTHER_FN,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(OTHER_FN,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -205,7 +206,7 @@ void makeAST_nodeTraversal(ParseTree pt){
 			addASTChildren(children, pt->children->head->next->addr);
             addASTChildren(children, pt->children->head->next->next->addr);
             addASTChildren(children, pt->children->head->next->next->next->next->addr);
-			pt->addr = makeASTNode(FN,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(FN,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -226,7 +227,7 @@ void makeAST_nodeTraversal(ParseTree pt){
 			addASTChildren(children, pt->children->head->addr);
             addASTChildren(children, makeLeaf(pt->children->head->next->lu));
             addASTChildren(children, pt->children->head->next->next->addr);
-			pt->addr = makeASTNode(PAR_LIST,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(PAR_LIST,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -264,7 +265,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             addASTChildren(children, pt->children->head->next->addr);
             addASTChildren(children, pt->children->head->next->next->addr);
             addASTChildren(children, pt->children->head->next->next->next->addr);
-			pt->addr = makeASTNode(STMTS,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(STMTS,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -272,7 +273,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             ASTChildren* children = initializeASTChildren(); 
 			addASTChildren(children, pt->children->head->addr);
             addASTChildren(children, pt->children->head->next->addr);
-			pt->addr = makeASTNode(TYPE_DEFS,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(TYPE_DEFS,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -284,7 +285,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             ASTChildren* children = initializeASTChildren(); 
             addASTChildren(children, makeLeaf(pt->children->head->next->lu));
             addASTChildren(children, pt->children->head->next->next->addr);
-			pt->addr = makeASTNode(TYPE_DEF,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(TYPE_DEF,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -293,7 +294,7 @@ void makeAST_nodeTraversal(ParseTree pt){
 			addASTChildren(children, pt->children->head->addr);
             addASTChildren(children, pt->children->head->next->addr);
             addASTChildren(children, pt->children->head->next->next->addr);
-			pt->addr = makeASTNode(FIELD_DEFS,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(FIELD_DEFS,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -301,7 +302,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             ASTChildren* children = initializeASTChildren(); 
             addASTChildren(children, pt->children->head->next->addr);
             addASTChildren(children, makeLeaf(pt->children->head->next->next->next->lu));
-			pt->addr = makeASTNode(FIELD_DEF,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(FIELD_DEF,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -309,7 +310,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             ASTChildren* children = initializeASTChildren(); 
 			addASTChildren(children, pt->children->head->addr);
             addASTChildren(children, pt->children->head->next->addr);
-			pt->addr = makeASTNode(MORE_FIELDS,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(MORE_FIELDS,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -321,7 +322,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             ASTChildren* children = initializeASTChildren(); 
 			addASTChildren(children, pt->children->head->addr);
             addASTChildren(children, pt->children->head->next->addr);
-			pt->addr = makeASTNode(DECLARATIONS,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(DECLARATIONS,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -329,8 +330,18 @@ void makeAST_nodeTraversal(ParseTree pt){
             pt->addr=NULL;
             break;
 
-        case  27  :
-
+        case  27  :                     // Declaration
+            ASTChildren* children = initializeASTChildren(); 
+			addASTChildren(children, pt->children->head->next->addr);
+            addASTChildren(children, makeLeaf(pt->children->head->next->next->next->lu));
+            if(pt->children->head->next->next->next->next == NULL)              // Not global
+			    pt->addr = makeASTNode(DECLARATION,false,NULL,children,NULL,NULL,false); 
+            else{           // Global
+                pt->addr = makeASTNode(DECLARATION,false,NULL,children,NULL,NULL,true); 
+                free(pt->children->head->next->next->next->next);
+                pt->children->head->next->next->next->next = NULL;
+            }
+			addParentPointers(pt->addr,children);
             break;
 
         case  28  :
@@ -345,7 +356,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             ASTChildren* children = initializeASTChildren(); 
 			addASTChildren(children, pt->children->head->addr);
             addASTChildren(children, pt->children->head->next->addr);
-			pt->addr = makeASTNode(OTHER_STMTS,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(OTHER_STMTS,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -377,7 +388,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             ASTChildren* children = initializeASTChildren(); 
 			addASTChildren(children, pt->children->head->addr);
             addASTChildren(children, pt->children->head->next->next->addr);
-			pt->addr = makeASTNode(ASSIGNMENT_STMT,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(ASSIGNMENT_STMT,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -385,7 +396,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             ASTChildren* children = initializeASTChildren(); 
 			addASTChildren(children, makeLeaf(pt->children->head->lu));
             addASTChildren(children, pt->children->head->next->addr);
-			pt->addr = makeASTNode(SINGLE_OR_REC_ID,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(SINGLE_OR_REC_ID,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -402,7 +413,7 @@ void makeAST_nodeTraversal(ParseTree pt){
 			addASTChildren(children, pt->children->head->addr);
             addASTChildren(children,makeLeaf(pt->children->head->next->next->lu));
             addASTChildren(children, pt->children->head->next->next->next->next->next->addr);
-			pt->addr = makeASTNode(FUN_CALL_STMT,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(FUN_CALL_STMT,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -423,7 +434,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             addASTChildren(children, pt->children->head->next->next->addr);
             addASTChildren(children, pt->children->head->next->next->next->next->addr);
             addASTChildren(children, pt->children->head->next->next->next->next->next->addr);
-			pt->addr = makeASTNode(ITERATIVE_STMT,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(ITERATIVE_STMT,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -433,7 +444,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             addASTChildren(children, pt->children->head->next->next->next->next->next->addr);
             addASTChildren(children, pt->children->head->next->next->next->next->next->next->addr);
             addASTChildren(children, pt->children->head->next->next->next->next->next->next->next->addr);
-			pt->addr = makeASTNode(CONDITIONAL_STMT,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(CONDITIONAL_STMT,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -441,7 +452,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             ASTChildren* children = initializeASTChildren(); 
 			addASTChildren(children, pt->children->head->next->addr);
             addASTChildren(children, pt->children->head->next->next->addr);
-			pt->addr = makeASTNode(ELSE,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(ELSE,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -452,14 +463,14 @@ void makeAST_nodeTraversal(ParseTree pt){
         case  49  :
             ASTChildren* children = initializeASTChildren(); 
             addASTChildren(children, pt->children->head->next->next->addr);
-			pt->addr = makeASTNode(IO_STMT_READ,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(IO_STMT_READ,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
         case  50  :
             ASTChildren* children = initializeASTChildren(); 
             addASTChildren(children, pt->children->head->next->next->addr);
-			pt->addr = makeASTNode(IO_STMT_WRITE,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(IO_STMT_WRITE,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -467,7 +478,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             ASTChildren* children = initializeASTChildren();
             addASTChildren(children, makeLeaf(pt->children->head->lu)); 
             addASTChildren(children, pt->children->head->next->addr);
-			pt->addr = makeASTNode(ALL_VAR,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(ALL_VAR,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -491,7 +502,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             ASTChildren* children = initializeASTChildren();
             addASTChildren(children, pt->children->head->addr); 
             addASTChildren(children, pt->children->head->next->addr);
-			pt->addr = makeASTNode(ARITHMETIC,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(ARITHMETIC,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -500,7 +511,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             addASTChildren(children, pt->children->head->addr); 
             addASTChildren(children, pt->children->head->next->addr);
             addASTChildren(children, pt->children->head->next->next->addr);
-			pt->addr = makeASTNode(EXP_PRIME,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(EXP_PRIME,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children);
             break;
 
@@ -512,7 +523,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             ASTChildren* children = initializeASTChildren();
             addASTChildren(children, pt->children->head->addr); 
             addASTChildren(children, pt->children->head->next->addr);
-			pt->addr = makeASTNode(ARITHMETIC,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(ARITHMETIC,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children); 
             break;
 
@@ -521,7 +532,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             addASTChildren(children, pt->children->head->addr); 
             addASTChildren(children, pt->children->head->next->addr);
             addASTChildren(children, pt->children->head->next->next->addr);
-			pt->addr = makeASTNode(TERM_PRIME,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(TERM_PRIME,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children); 
             break;
 
@@ -565,7 +576,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             ASTChildren* children = initializeASTChildren();
             addASTChildren(children, makeLeaf(pt->children->head->lu)); 
             addASTChildren(children, pt->children->head->next->addr);
-			pt->addr = makeASTNode(ALL,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(ALL,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children); 
             break;
 
@@ -582,7 +593,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             addASTChildren(children, pt->children->head->next->addr); 
             addASTChildren(children, pt->children->head->next->next->next->addr);
             addASTChildren(children, pt->children->head->next->next->next->next->next->addr);
-			pt->addr = makeASTNode(BOOLEAN1,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(BOOLEAN1,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children); 
             break;
 
@@ -591,14 +602,14 @@ void makeAST_nodeTraversal(ParseTree pt){
             addASTChildren(children, pt->children->head->addr); 
             addASTChildren(children, pt->children->head->next->addr);
             addASTChildren(children, pt->children->head->next->next->addr);
-			pt->addr = makeASTNode(BOOLEAN2,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(BOOLEAN2,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children); 
             break;
 
         case  75  :
             ASTChildren* children = initializeASTChildren();
             addASTChildren(children, pt->children->head->next->next->addr); 
-			pt->addr = makeASTNode(BOOLEAN3,false,NULL,children,NULL,NULL); 
+			pt->addr = makeASTNode(BOOLEAN3,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children); 
             break;
 
@@ -649,7 +660,7 @@ void makeAST_nodeTraversal(ParseTree pt){
         case  87  :
             ASTChildren* children = initializeASTChildren();
             addASTChildren(children, pt->children->head->next->addr); 
-            pt->addr = makeASTNode(RETURN,false,NULL,children,NULL,NULL); 
+            pt->addr = makeASTNode(RETURN,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children); 
             break;
 
@@ -665,7 +676,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             ASTChildren* children = initializeASTChildren();
             addASTChildren(children, makeLeaf(pt->children->head->lu)); 
             addASTChildren(children, pt->children->head->next->addr);
-            pt->addr = makeASTNode(ID_LIST,false,NULL,children,NULL,NULL); 
+            pt->addr = makeASTNode(ID_LIST,false,NULL,children,NULL,NULL,false); 
 			addParentPointers(pt->addr,children); 
             break;
 
@@ -679,7 +690,6 @@ void makeAST_nodeTraversal(ParseTree pt){
     }
 }
 
-<<<<<<< HEAD
 void displayAST(AST ast){
 
     printf("%20s %30s  %15s\n\n\n\n\n\n", "NODE TYPE", "PARENT TYPE", "IS_LEAF" );
@@ -717,8 +727,8 @@ void displayPreOrderAST(AST ast){
             ch1=ch1->next;
         }
     }
+}
     
-=======
 void getParseTreeSize(ParseTree pt, int* count, int* size){
     if(pt == NULL)
         return;
@@ -759,5 +769,4 @@ void compressionRation(ParseTree pt, AST ast){
 	float compressesionRatio = ((ptSize - astSize)/(float)ptSize)*(float)100;
 
 	printf("Compression ratio: %f\n", compressesionRatio);
->>>>>>> 30bcabc701508b086132e15e6bc49ee1ab522887
 }

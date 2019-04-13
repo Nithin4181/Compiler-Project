@@ -26,6 +26,12 @@ stack.o:	stack.c stack.h NaryTree.h parserDef.h lexerDef.h
 lookup.o:	lookup.c lookup.h
 	gcc-5 -g -c lookup.c
 
+ast.o:	ast.c ast.h astDef.h lexerDef.h
+	gcc-5 -g -c ast.c
+
+symbolTable.o:	symbolTable.c symbolTable.h symbolTableDef.h astDef.h lexerDef.h
+	gcc-5 -g -c symbolTable.c
+
 clean:
 	rm -f *.o
 	rm -f exe

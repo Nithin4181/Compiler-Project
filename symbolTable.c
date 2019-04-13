@@ -76,6 +76,16 @@ void traverseAST(ASTNode* node, STTreeNode* currScope, ErrorList* errors, int* n
     node->currentScope = currScope;
 }
 
+void setParentFn(AST ast){
+    AST temp = ast->parent->parent;
+    while(temp!=NULL && temp->label!=FN && temp->label!=MAIN)
+        temp = temp->parent;
+    if(temp->label == MAIN)
+        ast->callingFunction = NULL;
+    else if(temp->label == FN)
+        ast->callingFunction = temp->children->head;
+}
+
 STTree makeSymbolTables(AST* ast, ErrorList* errors){
     STTree tree = NULL;
     char* mainscope = (char*)malloc(sizeof(char)*8);  //can be 6, I guess?
@@ -120,7 +130,7 @@ STSymbolNode* getInfoFromAST(ASTNode* node){
     return information;
 }
 
-void displaySTTree(STTree* tree){
+void displaySTTree(STTree tree){
     printf("\n\n---------------Symbol Table Display-------------\n\n");
     printf("%20s %20s %20s %20s","Lexeme","type","scope","offset");
     displaySTTreeTraversal(tree);

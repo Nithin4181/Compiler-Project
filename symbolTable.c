@@ -105,7 +105,21 @@ STSymbol* makeSTSymbol(ASTNode* node, int num){
     return symbol;
 }
 
-STSymbolNode* getInfoFromAST(ASTNode* node);
+STSymbolNode* getInfoFromAST(ASTNode* node){
+    STTree tempscope = node->currentScope;
+    STSymbolNode* information = NULL;
+    while(tempscope != NULL){
+        information = getSymbol(node->lu->lexeme, tempscope->table);
+        if(information == NULL){
+            tempscope = tempscope->parent;
+        }
+        else{
+            break;
+        }
+    }
+    return information;
+}
+
 void setParentFn(ASTNode* node);
 int checkRecursion(ASTNode* node); //????
 

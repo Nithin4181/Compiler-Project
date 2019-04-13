@@ -1,0 +1,6 @@
+#ifndef _SEMANTIC_ANALYZER_DEF_H
+#define _SEMANTIC_ANALYZER_DEF_H
+
+#define ERROR_STRING_LENGTH 53
+
+#endif

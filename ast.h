@@ -12,11 +12,11 @@ void makeAST_postOrderTraversal(ParseTree pt);
 
 ASTChildren* initializeASTChildren();
 
-void addASTChildren(ASTChildren *ch,AST * ast);
+void addASTChildren(ASTChildren *ch, AST ast);
 
 ASTNode* makeASTNode(astNodeName label, bool leaf, ASTNode* parent, ASTChildren* children, ASTNode* next, Lexical_Unit* lu, bool global);
 
-inline ASTNode* makeASTLeaf(Lexical_Unit* lu);
+ASTNode* makeASTLeaf(Lexical_Unit* lu);
 
 void addParentPointers(ASTNode* parent, ASTChildren* children);
 

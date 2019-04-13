@@ -5,6 +5,9 @@
 #     Swarup N            - 2016A7PS0080P
 #     Naveen Unnikrishnan - 2016A7PS0111P
 
+driver1: driver1.o lexer.o lookup.o parser.o NaryTree.o stack.o ast.o symbolTable.o
+	gcc-5 -g -o test driver1.o lexer.o lookup.o parser.o NaryTree.o stack.o ast.o symbolTable.o
+
 driver:	driver.o lexer.o lookup.o parser.o NaryTree.o stack.o
 	gcc-5 -g -o stage1exe driver.o lexer.o lookup.o parser.o NaryTree.o stack.o
 

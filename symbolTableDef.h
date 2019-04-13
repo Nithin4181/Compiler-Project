@@ -14,7 +14,7 @@ typedef struct{
     int offset;
     int width;
     bool isAssigned;
-    ASTNode* ASTNode;
+    struct astNode* ASTNode;
     int number;
     int* val;
 }STSymbol;

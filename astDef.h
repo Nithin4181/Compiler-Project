@@ -54,7 +54,7 @@ typedef struct astNode{
 	struct astNode* next; 
 	Lexical_Unit* lu; 
 
-	struct STTreeNode* currentScope;
+	STTreeNode* currentScope;
     struct astNode* extend;
 
 	Token_type token;

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "symbolTableDef.h"
+#include "astDef.h"
 // #include "semanticAnalyzerDef.h"
 
 STSymbolTable* newSTSymbolTable(int nSlots);
@@ -15,20 +15,16 @@ STTreeNode* makeSTTreeNode(STTreeNode* parent, char* fnscope);
 STScopeNest* newScopeNest();
 void addToSTScopeNest(STTreeNode* parent, STTreeNode* node);
 
-void traverseAST(ASTNode* node, STTreeNode* currScope, ErrorList* errors, int* num);
-STTree makeSymbolTables(AST* ast, ErrorList* errors);
+void traverseASTPostorder(ASTNode* node, STTreeNode* currScope, int* num);
+STTree makeSymbolTables(AST ast);
 STSymbol* makeSTSymbol(ASTNode* node, int num);
 
 STSymbolNode* getInfoFromAST(ASTNode* node);
 void setParentFn(ASTNode* node);
-int checkRecursion(ASTNode* node); //????
+bool checkRecursion(ASTNode* node); //????
 
 void sortSymbols(STSlotsList* list);
 void sortSymbolsR(STSymbolNode* node, int n);
 
 void displaySTTree(STTree tree);
-void displaySTTreeTraversal(STTreeNode* node)
-
-
-
-
+void displaySTTreeTraversal(STTreeNode* node);

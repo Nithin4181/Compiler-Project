@@ -5,6 +5,10 @@
 #include "symbolTable.h"
 // #include "semanticAnalyzer.h"
 #include "lexer.h"
+#include "parser.h"
+
+extern char* terminalMap[];
+
 
 STSymbolTable* newSTSymbolTable(int nSlots){
     STSymbolTable* table = (STSymbolTable*) malloc(sizeof(STSymbolTable));
@@ -105,9 +109,66 @@ STSymbolNode* getInfoFromAST(ASTNode* node);
 void setParentFn(ASTNode* node);
 int checkRecursion(ASTNode* node); //????
 
-void printSTSymbol(STSymbol* Symbol, bool isNested, char* fnscope, char* parent);
-void printSTSymbolTable(STTreeNode* node, bool isNested);
 void sortSymbols(STSlotsList* list);
 void sortSymbolsR(STSymbolNode* node, int n);
-void printSTTree(STTree* tree);
-void printSTTreeR(STTreeNode* node, bool isNested);
+
+void displaySTTree(STTree* tree){
+    printf("\n\n---------------Symbol Table Display-------------\n\n");
+    printf("%20s %20s %20s %20s","Lexeme","type","scope","offset");
+    displaySTTreeTraversal(tree);
+
+}
+void displaySTTreeTraversal(STTreeNode* node){
+
+    char * st_par;
+    char * sc=node->fnscope;
+
+    if (node->parent==NULL) st_par=NULL;
+    else    st_par=node->parent->fnscope;
+
+    STSymbolTable * table=node->table;
+    STSlotsList * slots=(STSlotsList *)malloc(sizeof(STSlotsList));
+    slots->head=NULL;
+
+    STSymbolNode * symNode;
+
+    for (int i=0;i<NO_OF_SLOTS;++i){
+        STSymbolNode * s=table->slots[i]->head;
+        while (s!=NULL){
+            symNode=(STSymbolNode*)malloc(sizeof(STSymbolNode));
+            symNode->symbol=s->symbol;
+            symNode->next=slots->head;
+            slots->head=symNode;
+            
+            s=s->next;
+        }   
+    }
+    
+    symNode=slots->head;
+
+    while (symNode!=NULL){
+        if (st_par==NULL){
+            printf("%20s %20s %20s %20s",symNode->symbol->lu->lexeme,terminalMap[symNode->symbol->datatype],"None",symNode->symbol->offset);
+    
+        }
+        else{
+            printf("%20s %20s %20s %20s",symNode->symbol->lu->lexeme,terminalMap[symNode->symbol->datatype],symNode->symbol->offset);
+    
+        }
+        symNode=symNode->next;
+    }
+    printf("\n");
+
+    STScopeNest *ch=node->children;
+
+    STTreeNode * ch1;
+    if (ch!=NULL){
+        ch1=ch->head;
+
+        while (ch1!=NULL){
+            displaySTTreeTraversal(ch1);
+            ch1=ch1->next;
+
+        }
+    }
+}

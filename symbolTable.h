@@ -23,12 +23,11 @@ STSymbolNode* getInfoFromAST(ASTNode* node);
 void setParentFn(ASTNode* node);
 int checkRecursion(ASTNode* node); //????
 
-void printSTSymbol(STSymbol* Symbol, bool isNested, char* fnscope, char* parent);
-void printSTSymbolTable(STTreeNode* node, bool isNested);
 void sortSymbols(STSlotsList* list);
 void sortSymbolsR(STSymbolNode* node, int n);
-void printSTTree(STTree* tree);
-void printSTTreeR(STTreeNode* node, bool isNested);
+
+void displaySTTree(STTree* tree);
+void displaySTTreeTraversal(STTreeNode* node)
 
 
 

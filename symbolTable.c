@@ -130,6 +130,16 @@ STSymbolNode* getInfoFromAST(ASTNode* node){
     return information;
 }
 
+int checkRecursion(ASTNode* node){
+    if(node->callingFunction == NULL){
+        return 0;
+    }
+    if(strcmp(node->lu->lexeme, node->callingFunction->lu->lexeme) == 0){
+        return 1;
+    }
+    return 0;
+}
+
 void displaySTTree(STTree tree){
     printf("\n\n---------------Symbol Table Display-------------\n\n");
     printf("%20s %20s %20s %20s","Lexeme","type","scope","offset");

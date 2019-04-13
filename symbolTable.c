@@ -120,12 +120,6 @@ STSymbolNode* getInfoFromAST(ASTNode* node){
     return information;
 }
 
-void setParentFn(ASTNode* node);
-int checkRecursion(ASTNode* node); //????
-
-void sortSymbols(STSlotsList* list);
-void sortSymbolsR(STSymbolNode* node, int n);
-
 void displaySTTree(STTree* tree){
     printf("\n\n---------------Symbol Table Display-------------\n\n");
     printf("%20s %20s %20s %20s","Lexeme","type","scope","offset");

@@ -26,7 +26,7 @@ int checkRecursion(ASTNode* node); //????
 void sortSymbols(STSlotsList* list);
 void sortSymbolsR(STSymbolNode* node, int n);
 
-void displaySTTree(STTree* tree);
+void displaySTTree(STTree tree);
 void displaySTTreeTraversal(STTreeNode* node)
 
 

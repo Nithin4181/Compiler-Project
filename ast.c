@@ -759,7 +759,7 @@ void getASTSize(AST ast, int* count, int* size){
     }
 }
 
-void compressionRation(ParseTree pt, AST ast){
+void compressionRatio(ParseTree pt, AST ast){
     int ptNodes = 0, ptSize = 0, astNodes = 0, astSize = 0;
     getParseTreeSize(pt,&ptNodes,&ptSize);
     getASTSize(ast,&astNodes,&astSize);

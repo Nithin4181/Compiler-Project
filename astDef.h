@@ -2,6 +2,7 @@
 #define _AST_DEF_H
 
 #include "NaryTree.h"
+#include "symbolTableDef.h"
 
 typedef enum{
     PROGRAM,
@@ -53,7 +54,7 @@ typedef struct astNode{
 	struct astNode* next; 
 	Lexical_Unit* lu; 
 
-	struct symTableTreeNode* currentScope;
+	struct STTreeNode* currentScope;
     struct astNode* extend;
 
 	Token_type token;

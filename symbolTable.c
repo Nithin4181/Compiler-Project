@@ -3,10 +3,11 @@
 #include <string.h>
 
 #include "symbolTable.h"
-#include "semanticAnalyzer.h"
+// #include "semanticAnalyzer.h"
+#include "lexer.h"
 
 STSymbolTable* newSTSymbolTable(int nSlots){
-    STSymbolTable* table = (STSymboltable*) malloc(sizeof(STSymbolTable));
+    STSymbolTable* table = (STSymbolTable*) malloc(sizeof(STSymbolTable));
     table->nSlots = nSlots;
     table->slots = (STSlotsList**) malloc(nSlots*sizeof(STSlotsList*));
 
@@ -15,98 +16,81 @@ STSymbolTable* newSTSymbolTable(int nSlots){
         table->slots[i]->head = NULL;
         table->slots[i]->nSymbols = 0;
     }
-
     return table;
 }
 
-
-int findHash(char* key, int nSlots){
-    int sum = 0;
-    for(int i=0; i<strlen(key); ++i){
-        sum = sum*10 + (int)(key[i] - '0');
-        sum = sum%nSlots;
-    }
-    int hashval = sum%nSlots;
-    return hashval;
+int getHash(char* key, int nSlots){
+	int sum = 0;
+	for(int i=0; i<strlen(key); ++i){
+		sum = (sum*7 + ((int)key[i]))%1000000007;
+		if(sum<0)
+			sum = 0;
+	}
+	int hashvalue = sum%nSlots;
+	return hashvalue;
 }
 
-void addSTSymbol(STSymbolTable table, char* key, Symbol* symbol){
-    int k = findHash(key, table->nSlots);
+void addSTSymbol(STSymbolTable* table, char* key, STSymbol* symbol){
+    int k = getHash(key, table->nSlots);
     STSymbolNode* node = (STSymbolNode*) malloc(sizeof(STSymbolNode));
-    node->symbol = symbol;
     node->next = table->slots[k]->head;
+    node->symbol = symbol;
+    table->slots[k]->nSymbols++;    
     table->slots[k]->head = node;
-    table->slots[k]->nSymbols++;
 }
 
-STSymbolNode* getSymbol(char* key, SymbolTable* lTable){
-    int k = findHash(key, lTable->nSlots);
+STSymbolNode* getSymbol(char* key, STSymbolTable* lTable){
+    int k = getHash(key, lTable->nSlots);
     STSymbolNode* temp = lTable->slots[k]->head;
     while(temp!=NULL){
-        if(strcmp(temp->symbol->lexToken->lexeme, key)==0) return temp;
+        if(strcmp(temp->symbol->lu->lexeme,key)==0) return temp;
         temp = temp->next;
     }
     return NULL;
 }
 
-STTree* newSTTree(){
-    STTree* tree = (STTree*) malloc(sizeof(STTree));
-    tree->root = NULL;
-    return tree;
-}
-
 STTreeNode* makeSTTreeNode(STTreeNode* parent, char* fnscope){
     STTreeNode* node = (STTreeNode*) malloc(sizeof(STTreeNode));
     node->table = newSTSymbolTable(NO_OF_SLOTS);
-    node->next = NULL;
-    node->children = newScopeNest();
-    node->parent = parent;
+    node->children = (STScopeNest*) malloc(sizeof(STScopeNest));
+    node->children->head = NULL;
+    node->children->nSiblings = 0;
     node->fnscope = fnscope;
+    node->parent = parent;
+    node->next = NULL;
     if(parent!=NULL){
-        addToSTScopeNest(parent, node);
+        node->next = parent->children->head;
+        parent->children->head = node;
+        parent->children->nSiblings++;
     }
     return node;
-}
-
-
-STScopeNest* newScopeNest(){
-    STScopeNest* nest = (STScopeNest*) malloc(sizeof(STScopeNest));
-    nest->head = NULL;
-    nest->nSiblings = 0;
-    return nest;
-}
-
-void addToSTScopeNest(STTreeNode* parent, STTreeNode* node){
-    node->next = parent->children->head;
-    parent->children->head = node;
-    parent->children->nSiblings++;
-    return children;
 }
 
 void traverseAST(ASTNode* node, STTreeNode* currScope, ErrorList* errors, int* num){
     //maybe rewrite
     if(node==NULL) return;
-    node->currScope = currScope;
+    node->currentScope = currScope;
 }
 
-STTree* makeSymbolTables(AST* ast, ErrorList* errors){
-    STTree* tree = newSTTree();
+STTree makeSymbolTables(AST* ast, ErrorList* errors){
+    STTree tree = NULL;
     char* mainscope = (char*)malloc(sizeof(char)*8);  //can be 6, I guess?
     strcpy(mainscope, "_main");
-    tree->root = makeSTTreeNode(NULL, mainscope);
+    tree = makeSTTreeNode(NULL, mainscope);
     int num = 0;
-
+    traverseAST(ast, tree, errors, &num);
+    return tree;
 }
 
 STSymbol* makeSTSymbol(ASTNode* node, int num){
     STSymbol* symbol = (STSymbol*) malloc(sizeof(STSymbol));
-    symbol->lexToken = node->lexToken; //AST
+    symbol->lu = node->lu; //AST
     symbol->offset = 0;
     symbol->width = 0;
-    symbol->number = number;
+    symbol->number = num;
     symbol->ASTNode = node;
-    if(symbol->lexToken->type!=TK_FUNID){
-        symbol->datatype = node->parent->children->head->lexToken->type; //AST
+    if(symbol->lu->token!=TK_FUNID){
+        symbol->datatype = node->parent->children->head->lu->token; //AST
     }
     else symbol->datatype = TK_FUNID;
 

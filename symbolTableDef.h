@@ -1,14 +1,15 @@
-#ifndef SYMBOLTABLEDEF_H
-#define SYMBOLTABLEDEF_H
+#ifndef _SYMBOLTABLE_DEF_H
+#define _SYMBOLTABLE_DEF_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "astDef.h"
+#include "lexerDef.h"
 
 #define NO_OF_SLOTS 32
 
 typedef struct{
-    Token* lexToken;
+    Lexical_Unit* lu;
     int datatype;
     int offset;
     int width;
@@ -35,23 +36,22 @@ typedef struct{
     STSlotsList** slots;
 }STSymbolTable;
 
-struct _sttreenode{
-    STSymbolTable* table;
-    STScopeNest* children;
-    char* fnscope;
-    struct _sttreenode* next;
-    struct _sttreenode* parent;
-};
-
-typedef struct _sttreenode STTreeNode;
-
-typedef struct{
-    STTreeNode head;
+typedef struct _stscopenest{
+    struct _sttreenode* head;
     int nSiblings;
 }STScopeNest;
 
-typedef struct{
-    STTreeNode* root;
-}STTree;
+typedef struct _sttreenode{
+    STSymbolTable* table;
+    struct _stscopenest* children;
+    char* fnscope;
+    struct _sttreenode* next;
+    struct _sttreenode* parent;
+}STTreeNode;
+
+typedef STTreeNode* STTree;
+// typedef struct{
+//     STTreeNode* root;
+// }STTree;
 
 #endif

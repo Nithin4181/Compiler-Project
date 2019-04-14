@@ -137,15 +137,15 @@ void traverseASTPostorder(AST ast, STTree currentSTTree, int* num){
             symTemp = symTemp->next;
         }
     }
-    symTemp = ast->extend;
+    // symTemp = ast->extend;
     traverseASTPostorder(symTemp, currentSTTree, num);
 }
 
 void setParentFn(AST ast){
     AST temp = ast->parent->parent;
-    while(temp!=NULL && temp->label!=FN && temp->label!=MAIN)
+    while(temp!=NULL && temp->label!=FN && temp->label!=PROGRAM)
         temp = temp->parent;
-    if(temp->label == MAIN)
+    if(temp->label == PROGRAM)
         ast->callingFunction = NULL;
     else if(temp->label == FN)
         ast->callingFunction = temp->children->head;

@@ -505,45 +505,27 @@ void makeAST_nodeTraversal(ParseTree pt){
             break;
 
         case  56  :
-            children = initializeASTChildren();
-            addASTChildren(children, pt->children->head->addr); 
-            addASTChildren(children, pt->children->head->next->addr);
-			pt->addr = makeASTNode(ARITHMETIC,false,NULL,children,NULL,NULL,false); 
-			addParentPointers(pt->addr,children);
+            arithmeticASTTraversal(pt, NULL);
             break;
 
         case  57  :
-            children = initializeASTChildren();
-            addASTChildren(children, pt->children->head->addr); 
-            addASTChildren(children, pt->children->head->next->addr);
-            addASTChildren(children, pt->children->head->next->next->addr);
-			pt->addr = makeASTNode(EXP_PRIME,false,NULL,children,NULL,NULL,false); 
-			addParentPointers(pt->addr,children);
+            pt->addr = NULL;
             break;
 
         case  58  :
-            
+            pt->addr = NULL;
             break;
 
         case  59  :
-            children = initializeASTChildren();
-            addASTChildren(children, pt->children->head->addr); 
-            addASTChildren(children, pt->children->head->next->addr);
-			pt->addr = makeASTNode(ARITHMETIC,false,NULL,children,NULL,NULL,false); 
-			addParentPointers(pt->addr,children); 
+            arithmeticASTTraversal(pt, NULL);
             break;
 
         case  60  :
-            children = initializeASTChildren();
-            addASTChildren(children, pt->children->head->addr); 
-            addASTChildren(children, pt->children->head->next->addr);
-            addASTChildren(children, pt->children->head->next->next->addr);
-			pt->addr = makeASTNode(TERM_PRIME,false,NULL,children,NULL,NULL,false); 
-			addParentPointers(pt->addr,children); 
+            pt->addr = NULL;
             break;
 
         case  61  :
-
+            pt->addr = NULL;
             break;
 
         case  62  :
@@ -692,6 +674,106 @@ void makeAST_nodeTraversal(ParseTree pt){
 
         case  92  :
             pt->addr=NULL;
+            break;
+    }
+}
+
+void arithmeticASTTraversal(ParseTree pt, ParseTree predecessor){
+    if(pt == NULL)
+        return;
+    ParseTree curr, prev;
+    Children* ch;
+    int ruleNo = pt->ruleNo;
+    switch(ruleNo){
+        case 56:
+            prev = NULL;
+            ch = pt->children;
+            curr = ch->head;            
+            while(curr != NULL){
+                arithmeticASTTraversal(curr, prev);
+                prev = curr;
+                curr = curr->next;
+            }
+            pt->addr = pt->children->head->next->addr;
+            break;
+        case 57:
+            if(pt->parent->content->type.nonterm == arithmeticExpression)
+                pt->inh_addr = predecessor->addr;
+            else{
+                ASTChildren* children = initializeASTChildren();
+                addASTChildren(children, pt->parent->children->head->addr);
+                addASTChildren(children, pt->parent->inh_addr);
+                addASTChildren(children, predecessor->addr);
+                pt->inh_addr = makeASTNode(ARITHMETIC, false, NULL, children, NULL, NULL, false);
+                addParentPointers(pt->inh_addr, children);
+            }
+            prev = NULL;
+            ch = pt->children;
+            curr = ch->head;
+            while(curr != NULL){
+                arithmeticASTTraversal(curr, prev);
+                prev = curr;
+                curr = curr->next;
+            }
+            pt->addr = pt->children->head->next->next->addr;
+            break;
+        case 58:
+            if(pt->parent->content->type.nonterm == arithmeticExpression)
+                pt->inh_addr = predecessor->addr;
+            else{
+                ASTChildren* children = initializeASTChildren();
+                addASTChildren(children, pt->parent->children->head->addr);
+                addASTChildren(children, pt->parent->inh_addr);
+                addASTChildren(children, predecessor->addr);
+                pt->inh_addr = makeASTNode(ARITHMETIC, false, NULL, children, NULL, NULL, false);
+                addParentPointers(pt->inh_addr, children);
+            }
+            pt->addr = pt->inh_addr;
+            break;
+        case 59:
+            prev = NULL;
+            ch = pt->children;
+            curr = ch->head;            
+            while(curr != NULL){
+                arithmeticASTTraversal(curr, prev);
+                prev = curr;
+                curr = curr->next;
+            }
+            pt->addr = pt->children->head->next->addr;
+            break;
+        case 60:
+            if(pt->parent->content->type.nonterm == term)
+                pt->inh_addr = predecessor->addr;
+            else{
+                ASTChildren* children = initializeASTChildren();
+                addASTChildren(children, pt->parent->children->head->addr);
+                addASTChildren(children, pt->parent->inh_addr);
+                addASTChildren(children, predecessor->addr);
+                pt->inh_addr = makeASTNode(ARITHMETIC, false, NULL, children, NULL, NULL, false);
+                addParentPointers(pt->inh_addr, children);
+            }
+            prev = NULL;
+            ch = pt->children;
+            curr = ch->head;
+            while(curr != NULL){
+                arithmeticASTTraversal(curr, prev);
+                prev = curr;
+                curr = curr->next;
+            }
+            pt->addr = pt->children->head->next->next->addr;
+            break;
+        case 61:
+            if(pt->parent->content->type.nonterm == term)
+                pt->inh_addr = predecessor->addr;
+            else{
+                ASTChildren* children = initializeASTChildren();
+                addASTChildren(children, pt->parent->children->head->addr);
+                addASTChildren(children, pt->parent->inh_addr);
+                addASTChildren(children, predecessor->addr);
+                pt->inh_addr = makeASTNode(ARITHMETIC, false, NULL, children, NULL, NULL, false);
+                addParentPointers(pt->inh_addr, children);
+            }
+            pt->addr = pt->inh_addr;
             break;
     }
 }

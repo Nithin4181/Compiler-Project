@@ -10,6 +10,8 @@ AST makeAST(ParseTree pt);
 
 void makeAST_postOrderTraversal(ParseTree pt);
 
+void arithmeticASTTraversal(ParseTree pt, ParseTree predecessor);
+
 ASTChildren* initializeASTChildren();
 
 void addASTChildren(ASTChildren *ch, AST ast);

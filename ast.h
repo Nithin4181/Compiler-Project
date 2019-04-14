@@ -1,3 +1,11 @@
+/*
+Group No: 26
+Authors:
+    Nithin Benny Myppan - 2016A7PS0014P
+    Adhitya Mamallan    - 2016A7PS0028P
+    Swarup N            - 2016A7PS0080P
+    Naveen Unnikrishnan - 2016A7PS0111P
+*/
 #ifndef _AST_H
 #define _AST_H
 
@@ -18,7 +26,7 @@ void addASTChildren(ASTChildren *ch, AST ast);
 
 ASTNode* makeASTNode(astNodeName label, bool leaf, ASTNode* parent, ASTChildren* children, ASTNode* next, Lexical_Unit* lu, bool global);
 
-ASTNode* makeASTLeaf(Lexical_Unit* lu);
+ASTNode* makeASTLeaf(Lexical_Unit* lu, bool global);
 
 void addParentPointers(ASTNode* parent, ASTChildren* children);
 

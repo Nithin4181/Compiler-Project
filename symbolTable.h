@@ -1,3 +1,11 @@
+/*
+Group No: 26
+Authors:
+    Nithin Benny Myppan - 2016A7PS0014P
+    Adhitya Mamallan    - 2016A7PS0028P
+    Swarup N            - 2016A7PS0080P
+    Naveen Unnikrishnan - 2016A7PS0111P
+*/
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -28,3 +36,5 @@ void sortSymbolsR(STSymbolNode* node, int n);
 
 void displaySTTree(STTree tree);
 void displaySTTreeTraversal(STTreeNode* node);
+
+void computeOffsets(STTree tree);

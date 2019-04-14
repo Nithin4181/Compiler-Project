@@ -1,3 +1,11 @@
+/*
+Group No: 26
+Authors:
+    Nithin Benny Myppan - 2016A7PS0014P
+    Adhitya Mamallan    - 2016A7PS0028P
+    Swarup N            - 2016A7PS0080P
+    Naveen Unnikrishnan - 2016A7PS0111P
+*/
 #ifndef _AST_DEF_H
 #define _AST_DEF_H
 

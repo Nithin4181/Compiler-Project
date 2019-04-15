@@ -48,4 +48,4 @@ void printFnMemories(STTree tree);
 void printFnMemoriesTraversal(STTreeNode* node);
 
 void printTypeExpressionGlobalRecord(STTree tree);
-void printTEGRtraverse(STTreeNode* node);
+void printRecordDefs();

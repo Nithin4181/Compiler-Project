@@ -570,77 +570,28 @@ void printFnMemoriesTraversal(STTreeNode* node){
 void printTypeExpressionGlobalRecord(STTree tree){
     printf("\n\n----------Global Record Type Expressions & Width---------\n\n");
     printf("%20s %20s %20s\n\n","Name","Type","Width");
-    printTEGRtraverse(tree);
+    printRecordDefs(tree);
     printf("\n\n");
 }
 
-void printTEGRtraverse(STTreeNode* node){
-    char * st_par;
-    char * sc=node->fnscope;
-
-    if (node->parent==NULL) st_par=NULL;
-    else    st_par=node->parent->fnscope;
-
-    STSymbolTable * table=node->table;
-    STSlotsList * slots=(STSlotsList *)malloc(sizeof(STSlotsList));
-    slots->head=NULL;
-
-    STSymbolNode * symNode;
-
-    for (int i=0;i<NO_OF_SLOTS;++i){
-        STSymbolNode * s=table->slots[i]->head;
-        while (s!=NULL){
-            symNode=(STSymbolNode*)malloc(sizeof(STSymbolNode));
-            symNode->symbol=s->symbol;
-            symNode->next=slots->head;
-            slots->head=symNode;
-            
-            s=s->next;
-        }   
-    }
-    
-    symNode=slots->head;
-
-    while (symNode!=NULL){
-        char type[30];
-        type[0] = '\0';
-        bool recflag = false;
-        int recsize = 0;
-        if(symNode->symbol->datatype == TK_RECORD){
-            recflag = true;
-            recordDef* rec = symNode->symbol->rec;
-            recordFieldNode* curr = rec->head;
-            while(curr != NULL){
-                if(curr->type == TK_INT){
-                    strcat(type, "int");
-                    recsize+=2;
-                }
-                else if(curr->type == TK_REAL){
-                    strcat(type, "real");
-                    recsize+=4;
-                }
-                if(curr->next != NULL)
-                    strcat(type,", ");
-                curr = curr->next;
-            }
+void printRecordDefs(){
+    char type[30];
+    type[0] = '\0';
+    for(int i=0; i< recTable->nSlots; ++i){
+        recordDefNode* record = recTable->slots[i];
+        if(record == NULL)
+            continue;
+        recordDef* rec = record->record;
+        recordFieldNode* curr = rec->head;
+        while(curr != NULL){
+            if(curr->type == TK_INT)
+                strcat(type, "int");
+            else if(curr->type == TK_REAL)
+                strcat(type, "real");
+            if(curr->next != NULL)
+                strcat(type,", ");
+            curr = curr->next;
         }
-
-        if(recflag){
-            printf("%20s %20s %20d\n",symNode->symbol->lu->lexeme,type,recsize);
-        }
-        symNode=symNode->next;
-    }
-
-    STScopeNest *ch=node->children;
-
-    STTreeNode * ch1;
-    if (ch!=NULL){
-        ch1=ch->head;
-
-        while (ch1!=NULL){
-            printTEGRtraverse(ch1);
-            ch1=ch1->next;
-
-        }
+        printf("%20s %20s %20d\n",rec->name,type,rec->width);
     }
 }

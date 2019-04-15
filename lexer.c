@@ -445,7 +445,7 @@ Lexical_Unit* getNextTokenUtil(FILE **fp, bool printErrors){
                     current_position++;
                 }
                 else if (current_buffer[current_position]=='.'){
-                    state = 35;         // Possible Real number
+                    state = 35;         
                     lexeme[lexeme_position]=current_buffer[current_position];
                     lexeme_position++;
                     current_position++;
@@ -1116,8 +1116,7 @@ void removeComments(char *testcaseFile){
 	memset(previous_buffer, 0, sizeof(char)*(SIZE_BUFFER+1));
 
 	FILE* input = fopen(testcaseFile, "r");
-    // FILE* output = fopen(cleanFile, "w");
-	
+    
 	char ch;
     int line = 1;
     current_position = 0;

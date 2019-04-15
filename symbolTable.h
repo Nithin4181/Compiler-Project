@@ -37,4 +37,6 @@ void sortSymbolsR(STSymbolNode* node, int n);
 void displaySTTree(STTree tree);
 void displaySTTreeTraversal(STTreeNode* node);
 
-void computeOffsets(STTree tree);
+recordDef* makeRecordDef(AST ast);
+recordDef* getRecord(char* name, recordTable* rTable);
+void addRecordDef(recordTable* table, recordDef* record);

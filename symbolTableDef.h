@@ -59,6 +59,37 @@ typedef struct _sttreenode{
 }STTreeNode;
 
 typedef STTreeNode* STTree;
+
+
+
+
+struct _recordfieldnode{
+    Token_type type;
+    char* name;
+    struct _recordfieldnode* next;
+};
+
+typedef struct _recordfieldnode recordFieldNode;
+
+typedef struct{
+    recordFieldNode* head;
+    int nFields;
+    int width;
+    char* name;
+}recordDef;
+
+typedef struct _recorddefnode{
+    recordDef* record;
+    struct _recorddefnode* next;
+}recordDefNode;
+
+typedef struct{
+    int nSlots;
+    recordDefNode** slots;
+}recordTable;
+
+
+
 // typedef struct{
 //     STTreeNode* root;
 // }STTree;

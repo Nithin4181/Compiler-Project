@@ -12,14 +12,14 @@ Authors:
 #include <stdbool.h>
 #include "lexerDef.h"
 
-#define NON_TERMINAL_COUNT 51   non-terminals
-#define TERMINAL_COUNT 56      types + eps + $
+#define NON_TERMINAL_COUNT 51   
+#define TERMINAL_COUNT 56      
 
-#define SYMBOL_SIZE 25          of non-terminal
+#define SYMBOL_SIZE 25          
 
 typedef Token_type Terminal;
 
-typedef enum{                   nals in the grammar
+typedef enum{                   
 	program,
     otherFunctions,
     mainFunction,

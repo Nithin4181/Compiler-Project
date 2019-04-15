@@ -12,14 +12,14 @@ Authors:
 #include <stdbool.h>
 #include "lexerDef.h"
 
-#define NON_TERMINAL_COUNT 51  // Number of non-terminals
-#define TERMINAL_COUNT 56      // 54 token types + eps + $
+#define NON_TERMINAL_COUNT 51   non-terminals
+#define TERMINAL_COUNT 56      types + eps + $
 
-#define SYMBOL_SIZE 25          // Max size of non-terminal
+#define SYMBOL_SIZE 25          of non-terminal
 
 typedef Token_type Terminal;
 
-typedef enum{                   // Non terminals in the grammar
+typedef enum{                   nals in the grammar
 	program,
     otherFunctions,
     mainFunction,
@@ -73,43 +73,43 @@ typedef enum{                   // Non terminals in the grammar
     more_ids
 }NonTerminal;
 
-typedef union{                  // Union storing either terminal or non-terminal
+typedef union{                  
 	Terminal term;
 	NonTerminal nonterm;
 }Symbol;
 
-typedef struct _symbolNode{     // Node in the linked list
+typedef struct _symbolNode{     
 	Symbol symbol;
-	bool isTerminal;            // true for Terminal and false for Non Terminal
-	struct _symbolNode* next;   // pointer to the next node in the list
+	bool isTerminal;            
+	struct _symbolNode* next;   
 }SymbolNode;
 
-typedef struct _symbolList{     // Linked list of terminals and non-terminals
+typedef struct _symbolList{     
 	SymbolNode* head;
 	int length; 
 }SymbolList;
 
-typedef struct _rule{           // Rule structure
-	SymbolList* symbols;        // Linked list storing rule
-	struct _rule* next;         // Pointer to next Rule for that non-terminal
-	int ruleNo;                 // Rule no.
-}Rule;
+typedef struct _rule{           
+	SymbolList* symbols;        
+	struct _rule* next;         
+	int ruleNo;
+}Rule;              
 
-typedef struct _rules{          // Linked list of rules
-	Rule* head;                 // A linked list of rules for a non-terminal
-	int ruleCount;              // Number of rules for a particular non-terminal
+typedef struct _rules{          
+	Rule* head;                 
+	int ruleCount;              
 }Rules;
 
-typedef struct _grammar{        // Grammar structure
-	int ruleCount;              // Number of rules in grammar
-	Rules** rules; 	            // Array of pointers to linked list of rules
+typedef struct _grammar{        
+	int ruleCount;              
+	Rules** rules; 	            
 }Grammar;
 
-typedef struct _firstAndFollow{ // Structure storing first and follow sets
-	bool** first;               // 2D binary array for first set
-	bool** follow;              // 2D binary array for follow set
+typedef struct _firstAndFollow{  
+	bool** first;                
+	bool** follow;               
 }FirstAndFollow;
 
-typedef Rule*** ParsingTable;   // Parsing table is a 2D array of pointers to rules
+typedef Rule*** ParsingTable;   
 
 #endif

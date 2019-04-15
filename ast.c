@@ -141,11 +141,6 @@ void addParentPointers(ASTNode* parent, ASTChildren* children){
 
     while(temp1 != NULL){
         temp1->parent = parent;
-        // temp2 = temp1->extend;
-        // while(temp2!=NULL){
-        //     temp2->parent = parent;
-        //     temp2 = temp2->extend;
-        // }
         temp1 = temp1->next;
     }
     parent->lineNo = children->head->lineNo;
@@ -346,14 +341,14 @@ void makeAST_nodeTraversal(ParseTree pt){
             pt->addr=NULL;
             break;
 
-        case  27  :                     // Declaration
+        case  27  :                     
             children = initializeASTChildren(); 
 			addASTChildren(children, pt->children->head->next->addr);
-            if(pt->children->head->next->next->next->next->addr == NULL){              // Not global
+            if(pt->children->head->next->next->next->next->addr == NULL){              
 			    addASTChildren(children, makeASTLeaf(pt->children->head->next->next->next->lu, false));
                 pt->addr = makeASTNode(DECLARATION,false,NULL,children,NULL,NULL,false); 
             }
-            else{           // Global
+            else{           
                 addASTChildren(children, makeASTLeaf(pt->children->head->next->next->next->lu, true));
                 pt->addr = makeASTNode(DECLARATION,false,NULL,children,NULL,NULL,true); 
                 free(pt->children->head->next->next->next->next->addr);

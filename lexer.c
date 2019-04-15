@@ -15,7 +15,7 @@ Authors:
 
 #include "lexer.h"
 
-char* tokenTypeMap[] = {    // Maps enum values to corresponding token names.
+char* tokenTypeMap[] = {    
     "TK_ASSIGNOP",
     "TK_COMMENT",
     "TK_FIELDID",
@@ -201,11 +201,11 @@ Lexical_Unit* getNextTokenUtil(FILE **fp, bool printErrors){
                         return NULL;
                     }
                 }
-                else if (current_buffer[current_position]==' ' || current_buffer[current_position]=='\t'){  // ignore whitespace
+                else if (current_buffer[current_position]==' ' || current_buffer[current_position]=='\t'){  
                     state = 0;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='\n'){   // increment line number if newline
+                else if (current_buffer[current_position]=='\n'){   
                     line_no += 1;
                     current_position += 1;
                 }
@@ -213,7 +213,7 @@ Lexical_Unit* getNextTokenUtil(FILE **fp, bool printErrors){
                     state = 1;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='%'){    // TK_COMMENT
+                else if (current_buffer[current_position]=='%'){    
                     state = 2;
                     current_position++;
                 }
@@ -341,11 +341,11 @@ Lexical_Unit* getNextTokenUtil(FILE **fp, bool printErrors){
             break;
            
             case 1:
-                if (current_buffer[current_position]=='='){  // TK_LE
+                if (current_buffer[current_position]=='='){  
                     state = 26;
                     current_position++;
                 }
-                else if (current_buffer[current_position]=='-'){    // Maybe TK_ASSIGNOP
+                else if (current_buffer[current_position]=='-'){    
                     state = 27;
                     current_position++;
                 }
@@ -354,7 +354,7 @@ Lexical_Unit* getNextTokenUtil(FILE **fp, bool printErrors){
                     *fp=getStream(*fp);
                     if (*fp==NULL){
                         end_file = 1;
-                        state = 33;                      // TK_LT
+                        state = 33;                      
                         current_position++;
                         free(current_buffer);
                         free(previous_buffer);
@@ -362,7 +362,7 @@ Lexical_Unit* getNextTokenUtil(FILE **fp, bool printErrors){
                     }
                 }
                 else{
-                   state = 33;                        // TK_LT
+                   state = 33;                        
                    current_position++;
                 }
                 break;
@@ -371,7 +371,7 @@ Lexical_Unit* getNextTokenUtil(FILE **fp, bool printErrors){
                 strcpy(lexeme,"%");
                 addToken(lu, TK_COMMENT,lexeme, NULL);
                 final_state = 1;
-                while(current_buffer[current_position]!='\n'){    // Ignore line
+                while(current_buffer[current_position]!='\n'){   
                     if (current_buffer[current_position]=='\0'){
                         current_position=-1;
                         *fp=getStream(*fp);
@@ -1159,15 +1159,13 @@ void removeComments(char *testcaseFile){
 		if(current_buffer[i]!='\n')
 			emptyline = 0;
 		if(!(emptyline==1 && current_buffer[i]=='\n')){
-			// fputc(current_buffer[i], output);	
-            printf("%c",current_buffer[i]);		
+			printf("%c",current_buffer[i]);		
 		}
 		if(current_buffer[i]=='\n')
 			emptyline = 1;
 		i++;
 	}
     printf("\n");
-	//Input file will always be closed by getStream function
 	if(input!=NULL)
 		fclose(input);
     free(current_buffer);

@@ -170,7 +170,6 @@ Grammar* loadGrammar(char* inputFileName){
         }
         alternateRule = false;
 
-		//Look for RHS of the rule
         Rule* newRule = (Rule*)malloc(sizeof(Rule));
         newRule->ruleNo = ruleNo;
         ruleNo = ruleNo+1;
@@ -203,7 +202,6 @@ Grammar* loadGrammar(char* inputFileName){
 				isFileEnd = true;
 				break;
 			}
-			// If it's a non-terminal
 			else if(ch == '<'){
 				char* nonTerminalSymbol = (char*)malloc(sizeof(char)*SYMBOL_SIZE);
 				int i = 0;
@@ -213,10 +211,9 @@ Grammar* loadGrammar(char* inputFileName){
 				nonTerminalSymbol[i] = '\0';
 				
 				SymbolNode* symbolNode = makeSymbolNode(find(nonTerminalSymbol,false), false);
-				currentNode = addToRule(list, symbolNode, currentNode);	 // Add the created symbol to the list
+				currentNode = addToRule(list, symbolNode, currentNode);	
 			}
-            // If it's a terminal
-			else if(ch == 'e' || ch >= 'A' && ch <= 'Z' || ch == '_'){   // e: eps
+            else if(ch == 'e' || ch >= 'A' && ch <= 'Z' || ch == '_'){   
 				char* terminalSymbol = (char*)malloc(sizeof(char)*SYMBOL_SIZE);
 				int i = 0;
 				terminalSymbol[i++] = ch;
@@ -227,7 +224,7 @@ Grammar* loadGrammar(char* inputFileName){
 				}
                 terminalSymbol[i] = '\0';
 				SymbolNode* symbolNode = makeSymbolNode(find(terminalSymbol,true), true);
-				currentNode = addToRule(list, symbolNode, currentNode); // Add the Symbol created to the existing list
+				currentNode = addToRule(list, symbolNode, currentNode); 
 				if(ch == '\n' || ch == EOF){
 					if(ch == EOF)
 						isFileEnd = true;
@@ -244,7 +241,7 @@ Grammar* loadGrammar(char* inputFileName){
         grammar->rules[nonTerm]->head = newRule;
         grammar->rules[nonTerm]->ruleCount++;
         grammar->ruleCount++;
-        // Added the newly created rule to the Grammar
+        
 	}
 } 
 
@@ -293,7 +290,7 @@ SymbolNode* addToRule(SymbolList* list, SymbolNode* symbolNode, SymbolNode* curr
 		currentNode->next = symbolNode;
 		currentNode = currentNode->next;
 	}
-	else{								//  List is empty
+	else{								
 		symbolNode->next = list->head;
 		list->head = symbolNode;
 		currentNode = list->head;
@@ -403,7 +400,7 @@ void computeFollowSet(Grammar* grammar, FirstAndFollow* sets){
     /* Return Type: void */    	        
 	bool hasChanged = true;
 	addToSet(sets->follow[program],DOLLAR);
-	while(hasChanged){          // Repeat until follow set remains unchanged
+	while(hasChanged){          
 		hasChanged = computeFollowUtil(grammar,sets->first,sets->follow);
 	}
 }
@@ -537,9 +534,7 @@ void createParseTable(Grammar* grammar, FirstAndFollow* sets, ParsingTable table
 			int nsymbols = ruleSymbols->length;
 			for(int k=0; k<nsymbols; ++k){
 				if(tempSymbol->isTerminal){
-					//Terminal symbol
 					if(tempSymbol->symbol.term != EPS){
-						//terminal symbol not EPS
 						if(table[i][tempSymbol->symbol.term]!=NULL && tempRule!=table[i][tempSymbol->symbol.term]){
 							printf("ERROR: More than one rule indexed into the parse table at %s : %s\n",nonTerminalMap[i],terminalMap[tempSymbol->symbol.term]);
 						}
@@ -547,7 +542,6 @@ void createParseTable(Grammar* grammar, FirstAndFollow* sets, ParsingTable table
 						endHere = true;
 					}
 					else{
-						//terminal symbol is EPS
 						for(int p=0; p<TERMINAL_COUNT; ++p){
 							if(sets->follow[i][p]){
 								if(table[i][p]!=NULL && tempRule!=table[i][p]){
@@ -560,7 +554,6 @@ void createParseTable(Grammar* grammar, FirstAndFollow* sets, ParsingTable table
 					}
 				}
 				else{
-					//Nonterminal
 					for(int p=0; p<TERMINAL_COUNT; ++p){
 						if(sets->first[tempSymbol->symbol.nonterm][p]){
 							if(p!=EPS){

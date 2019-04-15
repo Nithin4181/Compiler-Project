@@ -29,7 +29,7 @@ STSymbol* makeSTSymbol(ASTNode* node, int num);
 
 STSymbolNode* getInfoFromAST(ASTNode* node);
 void setParentFn(ASTNode* node);
-bool checkRecursion(ASTNode* node); //????
+bool checkRecursion(ASTNode* node); 
 
 void sortSymbols(STSlotsList* list);
 void sortSymbolsR(STSymbolNode* node, int n);
@@ -40,3 +40,12 @@ void displaySTTreeTraversal(STTreeNode* node);
 recordDef* makeRecordDef(AST ast);
 recordDef* getRecord(char* name, recordTable* rTable);
 void addRecordDef(recordTable* table, recordDef* record);
+
+void printGlobalVars(STTree tree);
+void printGlobalVarsTraversal(STTreeNode* node);
+
+void printFnMemories(STTree tree);
+void printFnMemoriesTraversal(STTreeNode* node);
+
+void printTypeExpressionGlobalRecord(STTree tree);
+void printTEGRtraverse(STTreeNode* node);

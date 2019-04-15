@@ -89,10 +89,4 @@ typedef struct{
     recordDefNode** slots;
 }recordTable;
 
-
-
-// typedef struct{
-//     STTreeNode* root;
-// }STTree;
-
 #endif

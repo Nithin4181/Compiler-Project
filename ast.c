@@ -49,7 +49,8 @@ char* astNodeNameMap[] = {
     "BOOLEAN2",
     "BOOLEAN3",
     "RETURN",
-    "ID_LIST"
+    "ID_LIST",
+    "RECORD"
 };
 
 AST makeAST(ParseTree pt){
@@ -246,7 +247,12 @@ void makeAST_nodeTraversal(ParseTree pt){
             break;
 
         case  11  :
-            pt->addr=pt->children->head->addr;
+            // pt->addr=pt->children->head->addr;
+
+            children = initializeASTChildren(); 
+			addASTChildren(children, pt->children->head->addr);
+			pt->addr = makeASTNode(RECORD,false,NULL,children,NULL,NULL,false); 
+			addParentPointers(pt->addr,children);
             break;
 
         case  12  :
@@ -258,7 +264,7 @@ void makeAST_nodeTraversal(ParseTree pt){
             break;
 
         case  14  :
-            pt->addr=makeASTLeaf(pt->children->head->lu, false);
+            pt->addr=makeASTLeaf(pt->children->head->next->lu, false);
             break;
 
         case  15  :

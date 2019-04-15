@@ -100,6 +100,32 @@ STTreeNode* makeSTTreeNode(STTreeNode* parent, char* fnscope){
     return node;
 }
 
+void traverseASTPostorderForRecords(AST ast){
+    if(ast == NULL) return;
+    if(ast->leaf == true && ast->lu->token == TK_RECORDID && ast->parent->label == TYPE_DEF){
+        recordDef* information = getRecord(ast->lu->lexeme, recTable);
+        if(information == NULL){
+            recordDef* rec = makeRecordDef(ast->parent);
+            addRecordDef(recTable, rec);
+        }
+        else{
+            printf("Error Caught: Record '%s' already defined'\n", ast->lu->lexeme);
+        }
+        // setParentFn(ast);
+    }
+
+    ASTChildren* childs = ast->children;
+    ASTNode* symTemp;
+
+    if(childs != NULL){
+        symTemp = childs->head;
+        while(symTemp != NULL){
+            traverseASTPostorderForRecords(symTemp);
+            symTemp = symTemp->next;
+        }
+    }
+}
+
 void traverseASTPostorder(AST ast, STTree currentSTTree, int* num, STTree globalTree){
     if(ast == NULL) return;
     ast->currentScope = currentSTTree;
@@ -122,17 +148,6 @@ void traverseASTPostorder(AST ast, STTree currentSTTree, int* num, STTree global
         }
         setParentFn(ast);
     }
-    else if(ast->leaf == true && ast->lu->token == TK_RECORDID && ast->parent->label == TYPE_DEF){
-        recordDef* information = getRecord(ast->lu->lexeme, recTable);
-        if(information == NULL){
-            recordDef* rec = makeRecordDef(ast->parent);
-            addRecordDef(recTable, rec);
-        }
-        else{
-            printf("Error Caught: Record '%s' already defined'\n", ast->lu->lexeme);
-        }
-        setParentFn(ast);
-    }
     else if(ast->leaf == true && ast->lu->token==TK_FUNID){
         setParentFn(ast);
         STSymbolNode* information = getSymbol(ast->lu->lexeme, currentSTTree->table);
@@ -148,29 +163,6 @@ void traverseASTPostorder(AST ast, STTree currentSTTree, int* num, STTree global
             printf("Error: Undefined Function '%s()' Called\n", ast->lu->lexeme);
         }
     }
-    // else if(ast->leaf == true && ast->lu->token == TK_RECORDID){
-    //     setParentFn(ast);
-    //     recordDef* information = getRecord(ast->lu->lexeme, recTable);
-    //     if(information == NULL){
-    //         ast->token = TK_ERROR;
-    //         printf("Error: Undefined record '%s()' used\n", ast->lu->lexeme);
-    //     }
-    //     else{
-    //         STSymbolNode* information = getSymbol(ast->lu->lexeme, currentSTTree->table);
-    //         STSymbolNode* globalInformation = getSymbol(ast->lu->lexeme, globalTree->table);
-    //         if(information != NULL || globalInformation != NULL)
-    //             printf("Error: Multiple Declaration for Variable '%s'\n", ast->lu->lexeme);
-    //         else{
-    //             *num = *num+1;
-    //             STSymbol* sym = makeSTSymbol(ast, *num);
-    //             printf("Record id is %s\n",ast->lu->lexeme);
-    //             if(sym->ASTNode->global)
-    //                 addSTSymbol(globalTree->table, ast->lu->lexeme, sym);    
-    //             else
-    //                 addSTSymbol(ast->currentScope->table, ast->lu->lexeme, sym);
-    //         }
-    //     }
-    // }
     else if(ast->leaf == true && (ast->parent->label == DECLARATION || ast->parent->label == PAR_LIST) && ast->lu->token != TK_INT && ast->lu->token != TK_REAL && ast->lu->token != TK_RECORD){
         STSymbolNode* information = getSymbol(ast->lu->lexeme, currentSTTree->table);
         STSymbolNode* globalInformation = getSymbol(ast->lu->lexeme, globalTree->table);
@@ -230,6 +222,7 @@ STTree makeSymbolTables(AST ast){
     for(int i=0; i<recTable->nSlots; ++i)
         recTable->slots[i] = NULL;
     int num = 0;
+    traverseASTPostorderForRecords(ast);
     traverseASTPostorder(ast, globalTree, &num, globalTree);
     return globalTree;
 }
@@ -241,7 +234,10 @@ STSymbol* makeSTSymbol(ASTNode* node, int num){
     symbol->width = 0;
     symbol->number = num;
     symbol->ASTNode = node;
-    if(symbol->lu->token!=TK_FUNID){
+    if(node->parent->children->head->label == RECORD){
+        symbol->datatype = TK_RECORD;
+    }
+    else if(symbol->lu->token!=TK_FUNID){
         symbol->datatype = node->parent->children->head->lu->token; //AST
     }
     else symbol->datatype = TK_FUNID;
@@ -250,9 +246,10 @@ STSymbol* makeSTSymbol(ASTNode* node, int num){
         symbol->width = 2;
     else if(symbol->datatype==TK_REAL) 
         symbol->width = 4;
-    else if(symbol->datatype == TK_RECORDID){
-        recordDef* information = getRecord(node->lu->lexeme, recTable);
+    else if(symbol->datatype == TK_RECORD){
+        recordDef* information = getRecord(node->parent->children->head->children->head->lu->lexeme, recTable);
         symbol->width = information->width;
+        symbol->rec = information;
     }
     symbol->isAssigned = false;
     symbol->val = NULL;
@@ -271,7 +268,7 @@ recordDef* makeRecordDef(AST ast){
     record->head = (recordFieldNode*)malloc(sizeof(recordFieldNode));
     recordFieldNode* temp = record->head;
     temp->name = curr->children->head->next->children->head->children->head->next->lu->lexeme;
-    temp->type = curr->children->head->next->children->head->children->head->next->lu->token;
+    temp->type = curr->children->head->next->children->head->children->head->lu->token;
     if(temp->type == TK_INT)
         record->width += 2;
     else if(temp->type == TK_REAL)
@@ -279,7 +276,11 @@ recordDef* makeRecordDef(AST ast){
     temp->next = (recordFieldNode*)malloc(sizeof(recordFieldNode));
     temp = temp->next;
     temp->name = curr->children->head->next->children->head->next->children->head->next->lu->lexeme;
-    temp->type = curr->children->head->next->children->head->next->children->head->next->lu->token;
+    temp->type = curr->children->head->next->children->head->next->children->head->lu->token;
+    if(temp->type == TK_INT)
+        record->width += 2;
+    else if(temp->type == TK_REAL)
+        record->width += 4;
     temp->next = NULL;
     curr = curr->children->head->next->children->head->next->next;
     while(curr != NULL){
@@ -357,13 +358,25 @@ void displaySTTreeTraversal(STTreeNode* node){
     symNode=slots->head;
 
     while (symNode!=NULL){
-        char type[20];
+        char type[30];
+        type[0] = '\0';
         if(symNode->symbol->datatype == TK_INT)
             strcpy(type, "int");
         else if(symNode->symbol->datatype == TK_REAL)
             strcpy(type, "real");
-        else if(symNode->symbol->datatype == TK_RECORD)
-            strcpy(type,"record");
+        else if(symNode->symbol->datatype == TK_RECORD){
+            recordDef* rec = symNode->symbol->rec;
+            recordFieldNode* curr = rec->head;
+            while(curr != NULL){
+                if(curr->type == TK_INT)
+                    strcat(type, "int");
+                else if(curr->type == TK_REAL)
+                    strcat(type, "real");
+                if(curr->next != NULL)
+                    strcat(type,"x");
+                curr = curr->next;
+            }
+        }
         else if(symNode->symbol->datatype == TK_FUNID){
             symNode=symNode->next;
             continue;    

@@ -45,7 +45,8 @@ typedef enum{
     BOOLEAN2,
     BOOLEAN3,
     RETURN,
-    ID_LIST
+    ID_LIST,
+    RECORD
 }astNodeName;
 
 typedef struct astChildren{

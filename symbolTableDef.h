@@ -19,6 +19,7 @@ Authors:
 typedef struct{
     Lexical_Unit* lu;
     int datatype;
+    struct _recorddef* rec;
     int offset;
     int width;
     bool isAssigned;
@@ -71,7 +72,7 @@ struct _recordfieldnode{
 
 typedef struct _recordfieldnode recordFieldNode;
 
-typedef struct{
+typedef struct _recorddef{
     recordFieldNode* head;
     int nFields;
     int width;

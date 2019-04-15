@@ -23,7 +23,7 @@ STSymbolTable* newSTSymbolTable(int nSlots){
     STSymbolTable* table = (STSymbolTable*) malloc(sizeof(STSymbolTable));
     table->nSlots = nSlots;
     table->slots = (STSlotsList**) malloc(nSlots*sizeof(STSlotsList*));
-
+    table->offset = 0;
     for(int i=0; i<nSlots; ++i){
         table->slots[i] = (STSlotsList*) malloc(sizeof(STSlotsList));
         table->slots[i]->head = NULL;
@@ -50,6 +50,8 @@ void addSTSymbol(STSymbolTable* table, char* key, STSymbol* symbol){
     node->symbol = symbol;
     table->slots[k]->nSymbols++;    
     table->slots[k]->head = node;
+    symbol->offset = table->offset;
+    table->offset = table->offset + symbol->width;
 }
 
 STSymbolNode* getSymbol(char* key, STSymbolTable* lTable){
@@ -79,7 +81,7 @@ STTreeNode* makeSTTreeNode(STTreeNode* parent, char* fnscope){
     return node;
 }
 
-void traverseASTPostorder(AST ast, STTree currentSTTree, int* num){
+void traverseASTPostorder(AST ast, STTree currentSTTree, int* num, STTree globalTree){
     if(ast == NULL) return;
     ast->currentScope = currentSTTree;
     STTree newSTTree = currentSTTree;
@@ -90,7 +92,8 @@ void traverseASTPostorder(AST ast, STTree currentSTTree, int* num){
 
     if(ast->leaf == true && ast->lu->token==TK_FUNID && ast->parent->label == FN){
         STSymbolNode* information = getSymbol(ast->lu->lexeme, ast->parent->currentScope->table);
-        if(information == NULL){
+        STSymbolNode* globalInformation = getSymbol(ast->lu->lexeme, globalTree->table);
+        if(information == NULL && globalInformation == NULL){
             *num += 1;
             STSymbol* sym = makeSTSymbol(ast, *num);
             addSTSymbol(ast->parent->currentScope->table, ast->lu->lexeme, sym);
@@ -103,13 +106,14 @@ void traverseASTPostorder(AST ast, STTree currentSTTree, int* num){
     else if(ast->leaf == true && ast->lu->token==TK_FUNID){
         setParentFn(ast);
         STSymbolNode* information = getSymbol(ast->lu->lexeme, currentSTTree->table);
+        STSymbolNode* globalInformation = getSymbol(ast->lu->lexeme, globalTree->table);
         bool recr = checkRecursion(ast);
         if(recr == true){
             ast->token = TK_ERROR; // Something in SemanticAnalyzer perhaps
             printf("Error:Recursive Function Call '%s()' encountered\n", ast->lu->lexeme);
         }
 
-        else if(information == NULL){
+        else if(information == NULL && globalInformation == NULL){
             ast->token = TK_ERROR;
             printf("Error: Undefined Function '%s()' Called\n", ast->lu->lexeme);
         }
@@ -117,13 +121,17 @@ void traverseASTPostorder(AST ast, STTree currentSTTree, int* num){
 
     else if(ast->leaf == true && (ast->parent->label == DECLARATION || ast->parent->label == PAR_LIST) && ast->lu->token != TK_INT && ast->lu->token != TK_REAL && ast->lu->token != TK_RECORD){
         STSymbolNode* information = getSymbol(ast->lu->lexeme, currentSTTree->table);
-        if(information != NULL){
+        STSymbolNode* globalInformation = getSymbol(ast->lu->lexeme, globalTree->table);
+        if(information != NULL || globalInformation != NULL){
             printf("Error: Multiple Declaration for Variable '%s'\n", ast->lu->lexeme);
         }
         else{
             *num = *num+1;
             STSymbol* sym = makeSTSymbol(ast, *num);
-            addSTSymbol(ast->currentScope->table, ast->lu->lexeme, sym);
+            if(sym->ASTNode->global)
+                addSTSymbol(globalTree->table, ast->lu->lexeme, sym);    
+            else
+                addSTSymbol(ast->currentScope->table, ast->lu->lexeme, sym);
         }
     }
 
@@ -143,7 +151,7 @@ void traverseASTPostorder(AST ast, STTree currentSTTree, int* num){
     if(childs != NULL){
         symTemp = childs->head;
         while(symTemp != NULL){
-            traverseASTPostorder(symTemp, newSTTree, num);
+            traverseASTPostorder(symTemp, newSTTree, num, globalTree);
             symTemp = symTemp->next;
         }
     }
@@ -160,14 +168,13 @@ void setParentFn(AST ast){
 }
 
 STTree makeSymbolTables(AST ast){
-    STTree tree = NULL;
+    STTree globalTree = NULL;
     char* mainscope = (char*)malloc(sizeof(char)*8);  //can be 6, I guess?
     strcpy(mainscope, "global");
-    tree = makeSTTreeNode(NULL, mainscope);
+    globalTree = makeSTTreeNode(NULL, mainscope);
     int num = 0;
-    traverseASTPostorder(ast, tree, &num);
-    // computeOffsets(tree);
-    return tree;
+    traverseASTPostorder(ast, globalTree, &num, globalTree);
+    return globalTree;
 }
 
 STSymbol* makeSTSymbol(ASTNode* node, int num){
@@ -254,8 +261,10 @@ void displaySTTreeTraversal(STTreeNode* node){
             strcpy(type, "int");
         else if(symNode->symbol->datatype == TK_REAL)
             strcpy(type, "real");
-        else if(symNode->symbol->datatype == TK_FUNID)
-            strcpy(type, "function");
+        else if(symNode->symbol->datatype == TK_FUNID){
+            symNode=symNode->next;
+            continue;    
+        }
         if(symNode->symbol->ASTNode->global){
             printf("%20s %20s %20s %20d\n",symNode->symbol->lu->lexeme,type,"global",symNode->symbol->offset);
         }
@@ -281,55 +290,6 @@ void displaySTTreeTraversal(STTreeNode* node){
             displaySTTreeTraversal(ch1);
             ch1=ch1->next;
 
-        }
-    }
-}
-
-void computeOffsets(STTree tree){
-    char* sc = tree->fnscope;
-    char* stPar;
-    if(tree->parent == NULL)
-        stPar = NULL;
-    else
-        stPar = tree->parent->fnscope;
-    STSlotsList* sl = (STSlotsList*)malloc(sizeof(STSlotsList));
-    sl->head = NULL;
-    STSymbolTable* st = tree->table;
-    STSymbolNode* temp1;
-    for(int i=0; i<NO_OF_SLOTS; ++i){
-        STSymbolNode* temp2 = (STSymbolNode*)malloc(sizeof(STSymbolNode));
-        while(temp2 != NULL){
-            temp1 = (STSymbolNode*)malloc(sizeof(STSymbolNode));
-            temp1->next = sl->head;            
-            temp1->symbol = temp2->symbol;
-            temp2 = temp2->next;
-            sl->head = temp1;            
-        }
-    }
-    temp1 = sl->head;
-    int off = 0;
-    while(temp1 != NULL){
-        if(temp1->symbol->lu->token == TK_FUNID){
-            temp1 = temp1->next;
-            continue;
-        }
-        temp1->symbol->offset = off;
-        if(temp1->symbol->datatype == TK_RECORD){
-            printf("Aiyyo!\n");
-        }
-        else
-            off += temp1->symbol->width;
-        temp1 = temp1->next;
-    }
-
-
-    STScopeNest* ch = tree->children;
-    STTree curr;
-    if(ch != NULL){
-        curr = ch->head;
-        while(curr != NULL){
-            computeOffsets(curr);
-            curr = curr->next;
         }
     }
 }

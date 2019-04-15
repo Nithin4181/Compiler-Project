@@ -23,7 +23,7 @@ STTreeNode* makeSTTreeNode(STTreeNode* parent, char* fnscope);
 STScopeNest* newScopeNest();
 void addToSTScopeNest(STTreeNode* parent, STTreeNode* node);
 
-void traverseASTPostorder(ASTNode* node, STTreeNode* currScope, int* num);
+void traverseASTPostorder(ASTNode* node, STTreeNode* currScope, int* num, STTree globalTree);
 STTree makeSymbolTables(AST ast);
 STSymbol* makeSTSymbol(ASTNode* node, int num);
 

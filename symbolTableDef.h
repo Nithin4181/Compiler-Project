@@ -41,6 +41,7 @@ typedef struct{
 
 typedef struct{
     int nSlots;
+    int offset;
     STSlotsList** slots;
 }STSymbolTable;
 

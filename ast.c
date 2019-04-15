@@ -789,6 +789,7 @@ void displayAST(AST ast){
     printf("%20s %30s  %15s\n\n\n", "NODE TYPE", "PARENT TYPE", "IS_LEAF" );
 
     displayPreOrderAST(ast);
+    printf("\n\n\n");
 }
 
 void displayPreOrderAST(AST ast){

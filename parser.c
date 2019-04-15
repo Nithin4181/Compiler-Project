@@ -736,18 +736,17 @@ ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAnd
 	return tree;
 }
 
-void printParseTree(ParseTree tree, char* fname){
+void printParseTree(ParseTree tree){
     /* Description: Print parse tree to file */
     /* Arguments: Parse tree and output file name */
     /* Return Type: void */        
-	FILE* fp1 = fopen(fname,"w");
+	FILE* fp1 = stdout;
 	fprintf(fp1,"\n######################################### Parse Tree #########################################\n\n");
 	fprintf(fp1,"%-25s %-10s %-15s %-15s %-30s %-5s %s\n\n\n", "Lexeme","LineNo","TokenName","ValueIfNumber","ParentNodeSymbol","IsLeafNode","NodeSymbol");
 
 	printParseTree_util(tree,&fp1);
 
 	fprintf(fp1,"\n######################################### End Of Parse Tree #########################################\n\n");
-    fclose(fp1);
 }
 
 

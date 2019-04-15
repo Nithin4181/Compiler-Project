@@ -15,8 +15,8 @@ Authors:
 
 int main(int argc, char* argv[]){
     printf("Level 2: Symbol Table, AST, Semantic Rules and Type Checking work\n\n");
-    if(argc!=3){
-        printf("Please re-enter command as ./stage1exe testcase.txt parsetreeOutFile.txt\n");
+    if(argc!=2){
+        printf("Please re-enter command as ./stage1exe testcase.txt\n");
         return 0;
     }
 
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]){
                 break;
             case 2:
                 tree = parseInputSourceCode(argv[1],pt,ff,&errors);
-                printParseTree(tree, argv[2]);
+                printParseTree(tree);
                 break;
             case 3:
                 if(tree==NULL){

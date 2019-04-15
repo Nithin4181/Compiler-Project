@@ -49,7 +49,7 @@ void printParsingTable(ParsingTable table);
 
 ParseTree  parseInputSourceCode(char *testcaseFile, ParsingTable table, FirstAndFollow* ff, int* parseErrors);
 
-void printParseTree(ParseTree tree, char* fname);
+void printParseTree(ParseTree tree);
 
 void printParseTree_util(TreeNode* node, FILE** fp1);
 

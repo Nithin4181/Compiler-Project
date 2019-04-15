@@ -496,7 +496,7 @@ void printFnMemories(STTree tree){
     printf("\n\n---------------Function Memory Allocation-------------\n\n");
     printf("%20s %20s\n\n","Function","Memory");
     printFnMemoriesTraversal(tree);
-    printf("\n");
+    printf("\n\n");
 }
 
 void printFnMemoriesTraversal(STTreeNode* node){
@@ -571,7 +571,7 @@ void printTypeExpressionGlobalRecord(STTree tree){
     printf("\n\n----------Global Record Type Expressions & Width---------\n\n");
     printf("%20s %20s %20s\n\n","Name","Type","Width");
     printTEGRtraverse(tree);
-    printf("\n");
+    printf("\n\n");
 }
 
 void printTEGRtraverse(STTreeNode* node){
@@ -625,12 +625,11 @@ void printTEGRtraverse(STTreeNode* node){
             }
         }
 
-        if(symNode->symbol->ASTNode->global && recflag){
+        if(recflag){
             printf("%20s %20s %20d\n",symNode->symbol->lu->lexeme,type,recsize);
         }
         symNode=symNode->next;
     }
-    printf("\n");
 
     STScopeNest *ch=node->children;
 

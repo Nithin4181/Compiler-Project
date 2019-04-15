@@ -6,7 +6,7 @@
 #     Naveen Unnikrishnan - 2016A7PS0111P
 
 driver: driver.o lexer.o lookup.o parser.o NaryTree.o stack.o ast.o symbolTable.o
-	gcc-5 -g -o test driver.o lexer.o lookup.o parser.o NaryTree.o stack.o ast.o symbolTable.o
+	gcc-5 -g -o compiler driver.o lexer.o lookup.o parser.o NaryTree.o stack.o ast.o symbolTable.o
 
 driver.o:	driver.c lexer.h parser.h
 	gcc-5 -g -c driver.c
